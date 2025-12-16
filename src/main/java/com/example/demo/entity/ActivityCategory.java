@@ -1,4 +1,4 @@
 package com.example.demo.entity;
-public class ActivityCatgory{
+public class ActivityCategory{
     
 }
