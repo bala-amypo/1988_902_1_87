@@ -1,4 +1,4 @@
 package com.example.demo.controller;
-public class ActivityCatgoryController{
+public class ActivityCategoryController{
     
 }
