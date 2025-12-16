@@ -1,1 +1,4 @@
-package 
+package com.example.demo.controller;
+public class ActivityLogController{
+    
+}
