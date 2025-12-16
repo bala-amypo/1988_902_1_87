@@ -4,4 +4,7 @@ import org.springframework.bind.annotation.RestController;
 @RestController
 public class Basic{
     @GetMapping("/home")
+    public String sample(){
+        return "hello world";
+    }
 }
