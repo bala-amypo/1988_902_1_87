@@ -9,16 +9,19 @@ public class RegisterRequest{
     public String getName(){
         return name;
     }
-    public String setName(){
+    public void setName(String name){
         this.name=name;
     }
     public String getEmail(){
         return email;
     }
-    public String setEmail(){
+    public void setEmail(String email){
         this.email=email;
     }
-    public string getPassword(){
-        return 
+    public String getPassword(){
+        return password;
+    }
+    public void setPassword(String password){
+        this.password=password;
     }
 }
