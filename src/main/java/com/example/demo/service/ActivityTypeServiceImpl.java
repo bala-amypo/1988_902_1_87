@@ -1,4 +1,4 @@
 package com.example.demo.service;
-public class ActivityTypeService{
+public class ActivityTypeServiceImpl{
     
 }
