@@ -92,7 +92,7 @@ public class ActivityLog {
 
     @PrePersist
 
-    protected void prePersist() {
+    public void prePersist() {
 
         loggedAt = LocalDateTime.now();
 

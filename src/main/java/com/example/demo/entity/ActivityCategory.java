@@ -60,7 +60,7 @@ public class ActivityCategory {
 
     @PrePersist
 
-    protected void prePersist() {
+    public void prePersist() {
 
         createdAt = LocalDateTime.now();
 

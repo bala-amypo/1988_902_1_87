@@ -72,7 +72,7 @@ public class EmissionFactor {
 
     @PrePersist
 
-    protected void prePersist() {
+    public void prePersist() {
 
         createdAt = LocalDateTime.now();
 

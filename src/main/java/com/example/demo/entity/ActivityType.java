@@ -72,7 +72,7 @@ public class ActivityType {
 
     @PrePersist
 
-    protected void prePersist() {
+    public void prePersist() {
 
         createdAt = LocalDateTime.now();
 
