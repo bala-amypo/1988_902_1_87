@@ -1,5 +1,4 @@
 
-ActivityCategoryRepository.java
 
 package com.example.demo.repository;
 
