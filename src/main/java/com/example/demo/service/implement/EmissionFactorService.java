@@ -1,4 +1,4 @@
 package com.example.demo.service.implement;
-public class EmissionFactorImplement{
-    
+public class EmissionFactor{
+
 }

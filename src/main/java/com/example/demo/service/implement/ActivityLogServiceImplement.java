@@ -1,4 +1,4 @@
 package com.example.service.implement;
-public class ActivityLogServiceImplement{
+public interface ActivityLogService{
     
 }
