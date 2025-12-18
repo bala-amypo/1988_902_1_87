@@ -144,25 +144,16 @@ public class JwtUtil {
         return (extractedUsername.equals(username) && !isTokenExpired(token));
 
     }
-
-   
-
     private boolean isTokenExpired(String token) {
 
         return extractExpiration(token).before(new Date());
 
     }
-
-   
-
     private Date extractExpiration(String token) {
 
         return extractClaim(token, Claims::getExpiration);
 
     }
-
-   
-
     public Jwt<?, ?> parseToken(String token) {
 
         return Jwts.parserBuilder()
