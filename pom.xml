@@ -152,6 +152,13 @@
 		<version>5.10.0</version>
 		<scope>test</scope>
 		</dependency>
+        
+        <dependency>
+        <groupId>org.testing</groupId>
+        <artifactId>testing</artifactId>
+        <version>7.10.2</version>
+        <scope>test</scope>
+        </dependency>
 
     </dependencies>
 
