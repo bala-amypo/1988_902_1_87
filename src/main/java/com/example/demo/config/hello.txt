@@ -1,135 +1,5 @@
 
-Folder: entity
-
-ActivityCategory.java
-
- 
-
- 
-
-
-
- 
-
- 
-
-ActivityLog.java
-
-
-
- 
-
- 
-
- 
-
-ActivityType.java
-
-
-
- 
-
- 
-
- 
-
-EmissionFactor.java
-
-
-
- 
-
- 
-
- 
-
- 
-
-User.java
-
-
-
- 
-
- 
-
- 
-
- 
-
-Folder: Exception
-
- 
-
-
-
- 
-
- 
-
-ResourceNotFoundException.java
-
-package com.example.demo.exception;
-
- 
-
-public class ResourceNotFoundException extends RuntimeException {
-
-    public ResourceNotFoundException(String message) {
-
-        super(message);
-
-    }
-
-}
-
- 
-
- 
-
-ValidationException.java
-
-package com.example.demo.exception;
-
- 
-
-public class ValidationException extends RuntimeException {
-
-    public ValidationException(String message) {
-
-        super(message);
-
-    }
-
-}
-
- 
-
- 
-
 Folder:Repository
-
-ActivityCategoryRepository.java
-
-package com.example.demo.repository;
-
- 
-
-import com.example.demo.entity.ActivityCategory;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import org.springframework.stereotype.Repository;
-
- 
-
-@Repository
-
-public interface ActivityCategoryRepository extends JpaRepository<ActivityCategory, Long> {
-
-    boolean existsByCategoryName(String categoryName);
-
-}
 
  
 
@@ -145,33 +15,7 @@ public interface ActivityCategoryRepository extends JpaRepository<ActivityCatego
 
 ActivityLogRepository.java
 
-package com.example.demo.repository;
 
- 
-
-import com.example.demo.entity.ActivityLog;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import org.springframework.stereotype.Repository;
-
- 
-
-import java.time.LocalDate;
-
-import java.util.List;
-
- 
-
-@Repository
-
-public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long> {
-
-    List<ActivityLog> findByUser_IdAndActivityDateBetween(Long userId, LocalDate start, LocalDate end);
-
-    List<ActivityLog> findByUser_Id(Long userId);
-
-}
 
  
 
@@ -183,29 +27,6 @@ public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long> 
 
 ActivityTypeRepository.java
 
-package com.example.demo.repository;
-
- 
-
-import com.example.demo.entity.ActivityType;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import org.springframework.stereotype.Repository;
-
- 
-
-import java.util.List;
-
- 
-
-@Repository
-
-public interface ActivityTypeRepository extends JpaRepository<ActivityType, Long> {
-
-    List<ActivityType> findByCategory_Id(Long categoryId);
-
-}
 
  
 
@@ -213,29 +34,7 @@ public interface ActivityTypeRepository extends JpaRepository<ActivityType, Long
 
 EmissionFactorRepository.java
 
-package com.example.demo.repository;
 
- 
-
-import com.example.demo.entity.EmissionFactor;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import org.springframework.stereotype.Repository;
-
- 
-
-import java.util.Optional;
-
- 
-
-@Repository
-
-public interface EmissionFactorRepository extends JpaRepository<EmissionFactor, Long> {
-
-    Optional<EmissionFactor> findByActivityType_Id(Long activityTypeId);
-
-}
 
  
 
@@ -245,31 +44,7 @@ public interface EmissionFactorRepository extends JpaRepository<EmissionFactor, 
 
 UserRepository.java
 
-package com.example.demo.repository;
 
- 
-
-import com.example.demo.entity.User;
-
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import org.springframework.stereotype.Repository;
-
- 
-
-import java.util.Optional;
-
- 
-
-@Repository
-
-public interface UserRepository extends JpaRepository<User, Long> {
-
-    boolean existsByEmail(String email);
-
-    Optional<User> findByEmail(String email);
-
-}
 
  
 
@@ -281,71 +56,7 @@ Folder : Security
 
 CustomUserDetailsService.java
 
-package com.example.demo.security;
 
- 
-
-import com.example.demo.entity.User;
-
-import com.example.demo.repository.UserRepository;
-
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import org.springframework.security.core.userdetails.UserDetails;
-
-import org.springframework.security.core.userdetails.UserDetailsService;
-
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-
-import org.springframework.stereotype.Service;
-
- 
-
-import java.util.Collections;
-
- 
-
-@Service
-
-public class CustomUserDetailsService implements UserDetailsService {
-
-   
-
-    private final UserRepository userRepository;
-
-   
-
-    public CustomUserDetailsService(UserRepository userRepository) {
-
-        this.userRepository = userRepository;
-
-    }
-
-   
-
-    @Override
-
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-
-        User user = userRepository.findByEmail(email)
-
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
-       
-
-        return org.springframework.security.core.userdetails.User.builder()
-
-                .username(user.getEmail())
-
-                .password(user.getPassword())
-
-                .authorities(Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole())))
-
-                .build();
-
-    }
-
-}
 
  
 
@@ -355,111 +66,7 @@ JwtAuthenticationFilter.java
 
  
 
-package com.example.demo.security;
 
- 
-
-import jakarta.servlet.FilterChain;
-
-import jakarta.servlet.ServletException;
-
-import jakarta.servlet.http.HttpServletRequest;
-
-import jakarta.servlet.http.HttpServletResponse;
-
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-
-import org.springframework.security.core.context.SecurityContextHolder;
-
-import org.springframework.stereotype.Component;
-
-import org.springframework.web.filter.OncePerRequestFilter;
-
- 
-
-import java.io.IOException;
-
-import java.util.Collections;
-
- 
-
-@Component
-
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
-   
-
-    private final JwtUtil jwtUtil;
-
-   
-
-    public JwtAuthenticationFilter(JwtUtil jwtUtil) {
-
-        this.jwtUtil = jwtUtil;
-
-    }
-
-   
-
-    @Override
-
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-
-            throws ServletException, IOException {
-
-       
-
-        String authHeader = request.getHeader("Authorization");
-
-       
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-
-            String token = authHeader.substring(7);
-
-           
-
-            try {
-
-                String email = jwtUtil.extractUsername(token);
-
-                String role = jwtUtil.extractRole(token);
-
-                Long userId = jwtUtil.extractUserId(token);
-
-               
-
-                if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
-                    if (jwtUtil.isTokenValid(token, email)) {
-
-                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
-
-                                email, null, Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role)));
-
-                        SecurityContextHolder.getContext().setAuthentication(authToken);
-
-                    }
-
-                }
-
-            } catch (Exception e) {
-
-                // Invalid token, continue without authentication
-
-            }
-
-        }
-
-       
-
-        filterChain.doFilter(request, response);
-
-    }
-
-}
 
  
 
