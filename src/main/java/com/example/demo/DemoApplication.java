@@ -15,6 +15,4 @@ package com.example.demo;
         SpringApplication.run(DemoApplication.class, args);
 
    }
-
-
 }
