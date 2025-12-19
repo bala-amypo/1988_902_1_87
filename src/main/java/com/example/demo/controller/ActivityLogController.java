@@ -2,8 +2,6 @@ package com.example.demo.controller;
 
  
 
-import com.example.demo.dto.ActivityLogRequest;
-
 import com.example.demo.entity.ActivityLog;
 
 import com.example.demo.service.ActivityLogService;
@@ -46,15 +44,7 @@ public class ActivityLogController {
 
     public ResponseEntity<ActivityLog> logActivity(@PathVariable Long userId, @PathVariable Long typeId,
 
-                                                  @RequestBody ActivityLogRequest request) {
-
-        ActivityLog log = new ActivityLog();
-
-        log.setQuantity(request.getQuantity());
-
-        log.setActivityDate(request.getActivityDate());
-
-       
+                                                  @RequestBody ActivityLog log) {
 
         ActivityLog savedLog = logService.logActivity(userId, typeId, log);
 
