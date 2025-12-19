@@ -1,4 +1,4 @@
-/* package com.example.demo.config;
+package com.example.demo.config;
 
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.servers.Server;
@@ -17,4 +17,4 @@ public class OpenApiConfig {
                         new Server().url("https://9547.pro604cr.amypo.ai/")
                 ));
         }
-} */
+}
