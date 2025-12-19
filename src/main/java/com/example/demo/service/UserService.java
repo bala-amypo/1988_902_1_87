@@ -18,6 +18,4 @@ public interface UserService {
 
     User getByEmail(String email);
 
-    User loginUser(String email, String password);
-
 }
