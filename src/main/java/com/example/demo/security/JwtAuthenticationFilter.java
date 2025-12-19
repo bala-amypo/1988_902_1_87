@@ -1,3 +1,4 @@
+-- Active: 1766068797326@@127.0.0.1@3306@mysql
  package com.example.demo.security;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -11,12 +12,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Collections;
 
- 
-
 @Component
-
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
-
    
 
     private final JwtUtil jwtUtil;
