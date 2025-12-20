@@ -1,37 +1,13 @@
-package com.example.demo.config;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.security.SecurityRequirement;
-import io.swagger.v3.oas.models.security.SecurityScheme;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
 @Configuration
 public class SwaggerConfig {
+
     @Bean
-    public OpenAPI openAPI() {
+    public OpenAPI carbonFootprintOpenAPI() {
         return new OpenAPI()
                 .info(new Info()
                         .title("Carbon Footprint Estimator API")
-
                         .description("API for tracking and estimating carbon emissions")
-
-                        .version("1.0"))
-
-                .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
-
-                .components(new io.swagger.v3.oas.models.Components()
-
-                        .addSecuritySchemes("Bearer Authentication",
-
-                                new SecurityScheme()
-
-                                        .type(SecurityScheme.Type.HTTP)
-
-                                        .scheme("bearer")
-
-                                        .bearerFormat("JWT")));
-
+                        .version("1.0"));
+        // no security items or schemes needed for now
     }
-
 }
