@@ -1,4 +1,4 @@
-package com.example.demo.dto;
+/* package com.example.demo.dto;
 import java.time.LocalDate;
 
  
@@ -35,4 +35,4 @@ public class ActivityLogRequest {
 
     public void setActivityDate(LocalDate activityDate) { this.activityDate = activityDate; }
 
-}
+} */
