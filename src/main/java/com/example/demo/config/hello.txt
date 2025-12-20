@@ -88,37 +88,11 @@ ActivityTypeRepository.java
 
 EmissionFactorRepository.java 
 
-package com.example.demo.repository;
-
-import com.example.demo.entity.EmissionFactor;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.Optional;
-
-public interface EmissionFactorRepository extends JpaRepository<EmissionFactor, Long> {
-
-Optional<EmissionFactor> findByActivityType_Id(Long activityTypeId);
-}
-
 
 
 
 
 UserRepository.java
-
-package com.example.demo.repository;
-
-import com.example.demo.entity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.Optional;
-
-public interface UserRepository extends JpaRepository<User, Long> {
-
-boolean existsByEmail(String email);
-
-Optional<User> findByEmail(String email);
-}
 
 
 
@@ -134,61 +108,15 @@ service
 
 ActivityCategoryService.java 
 
-package com.example.demo.service;
-
-import com.example.demo.entity.ActivityCategory;
-
-import java.util.List;
-
-public interface ActivityCategoryService {
-
-ActivityCategory createCategory(ActivityCategory category);
-
-ActivityCategory getCategory(Long id);
-
-List<ActivityCategory> getAllCategories();
-}
 
 
 
 ActivityLogService.java
 
-package com.example.demo.service;
-
-import com.example.demo.entity.ActivityLog;
-
-import java.time.LocalDate;
-import java.util.List;
-
-public interface ActivityLogService {
-
-ActivityLog logActivity(Long userId, Long typeId, ActivityLog log);
-
-ActivityLog getLog(Long id);
-
-List<ActivityLog> getLogsByUser(Long userId);
-
-List<ActivityLog> getLogsByUserAndDate(Long userId, LocalDate start, LocalDate end);
-}
 
 
 
 ActivityTypeService.java
-
-package com.example.demo.service;
-
-import com.example.demo.entity.ActivityType;
-
-import java.util.List;
-
-public interface ActivityTypeService {
-
-ActivityType createType(Long categoryId, ActivityType type);
-
-ActivityType getType(Long id);
-
-List<ActivityType> getTypesByCategory(Long categoryId);
-}
 
 
 
@@ -197,44 +125,11 @@ List<ActivityType> getTypesByCategory(Long categoryId);
 
 EmissionFactorService.java
 
-package com.example.demo.service;
-
-import com.example.demo.entity.EmissionFactor;
-
-import java.util.List;
-
-public interface EmissionFactorService {
-
-EmissionFactor createFactor(Long activityTypeId, EmissionFactor factor);
-
-EmissionFactor getFactor(Long id);
-
-EmissionFactor getFactorByType(Long activityTypeId);
-
-List<EmissionFactor> getAllFactors();
-}
-
 
 
 
 UserService.java
 
-package com.example.demo.service;
-
-import com.example.demo.entity.User;
-
-import java.util.List;
-
-public interface UserService {
-
-User registerUser(User user);
-
-User getUser(Long id);
-
-List<User> getAllUsers();
-
-User getByEmail(String email);
-}
 
 
 
@@ -244,46 +139,6 @@ User getByEmail(String email);
 service/impl
 
 ActivityCategoryServiceImpl.java
-
-package com.example.demo.service.impl;
-
-import com.example.demo.entity.ActivityCategory;
-import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.exception.ValidationException;
-import com.example.demo.repository.ActivityCategoryRepository;
-import com.example.demo.service.ActivityCategoryService;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-
-@Service
-public class ActivityCategoryServiceImpl implements ActivityCategoryService {
-
-private final ActivityCategoryRepository categoryRepository;
-
-public ActivityCategoryServiceImpl(ActivityCategoryRepository categoryRepository) {
-this.categoryRepository = categoryRepository;
-}
-
-@Override
-public ActivityCategory createCategory(ActivityCategory category) {
-if (categoryRepository.existsByCategoryName(category.getCategoryName())) {
-throw new ValidationException("Category name must be unique");
-}
-return categoryRepository.save(category);
-}
-
-@Override
-public ActivityCategory getCategory(Long id) {
-return categoryRepository.findById(id)
-.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
-}
-
-@Override
-public List<ActivityCategory> getAllCategories() {
-return categoryRepository.findAll();
-}
-}
 
 
 

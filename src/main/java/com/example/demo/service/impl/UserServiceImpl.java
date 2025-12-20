@@ -1,117 +1,33 @@
-package com.example.demo.service.impl;
 
- 
+package com.example.demo.service;
 
 import com.example.demo.entity.User;
 
-import com.example.demo.exception.ResourceNotFoundException;
+import java.util.List;
 
-import com.example.demo.exception.ValidationException;
+public interface UserService {
 
-import com.example.demo.repository.UserRepository;
+User registerUser(User user);
 
-import com.example.demo.service.UserService;
+User getUser(Long id);
 
-import org.springframework.security.crypto.password.PasswordEncoder;
+List<User> getAllUsers();
 
-import org.springframework.stereotype.Service;
+User getByEmail(String email);
+}
+package com.example.demo.service;
 
- 
+import com.example.demo.entity.User;
 
 import java.util.List;
 
- 
+public interface UserService {
 
-@Service
+User registerUser(User user);
 
-public class UserServiceImpl implements UserService {
+User getUser(Long id);
 
-   
+List<User> getAllUsers();
 
-    private final UserRepository userRepository;
-
-    private final PasswordEncoder passwordEncoder;
-
-   
-
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
-
-        this.userRepository = userRepository;
-
-        this.passwordEncoder = passwordEncoder;
-
-    }
-
-   
-
-    @Override
-
-    public User registerUser(User user) {
-
-        if (userRepository.existsByEmail(user.getEmail())) {
-
-            throw new ValidationException("Email already in use");
-
-        }
-
-       
-
-        if (user.getPassword().length() < 8) {
-
-            throw new ValidationException("Password must be at least 8 characters");
-
-        }
-
-       
-
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-       
-
-        if (user.getRole() == null || user.getRole().isEmpty()) {
-
-            user.setRole("USER");
-
-        }
-
-       
-
-        return userRepository.save(user);
-
-    }
-
-   
-
-    @Override
-
-    public User getUser(Long id) {
-
-        return userRepository.findById(id)
-
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-    }
-
-   
-
-    @Override
-
-    public List<User> getAllUsers() {
-
-        return userRepository.findAll();
-
-    }
-
-   
-
-    @Override
-
-    public User getByEmail(String email) {
-
-        return userRepository.findByEmail(email)
-
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-    }
-
+User getByEmail(String email);
 }
