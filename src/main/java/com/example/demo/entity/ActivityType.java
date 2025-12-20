@@ -1,113 +1,61 @@
+
 package com.example.demo.entity;
 
- 
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
- 
-
 @Entity
-
 @Table(name = "activity_types")
-
 public class ActivityType {
 
-   
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private Long id;
 
-    @Id
+@Column(nullable = false)
+private String typeName;
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "category_id", nullable = false)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+private ActivityCategory category;
 
-    private Long id;
+@Column(nullable = false)
+private String unit; // e.g. "km", "kWh"
 
-   
+@Column(nullable = false)
+private LocalDateTime createdAt;
 
-    @Column(nullable = false)
+public ActivityType() {
+}
 
-    private String typeName;
+public ActivityType(Long id, String typeName, ActivityCategory category, String unit, LocalDateTime createdAt) {
+this.id = id;
+this.typeName = typeName;
+this.category = category;
+this.unit = unit;
+this.createdAt = createdAt;
+}
 
-   
+@PrePersist
+protected void onCreate() {
+createdAt = LocalDateTime.now();
+}
 
-    @ManyToOne(fetch = FetchType.LAZY)
+// getters and setters
+public Long getId() { return id; }
+public void setId(Long id) { this.id = id; }
 
-    @JoinColumn(name = "category_id", nullable = false)
+public String getTypeName() { return typeName; }
+public void setTypeName(String typeName) { this.typeName = typeName; }
 
-    private ActivityCategory category;
+public ActivityCategory getCategory() { return category; }
+public void setCategory(ActivityCategory category) { this.category = category; }
 
-   
+public String getUnit() { return unit; }
+public void setUnit(String unit) { this.unit = unit; }
 
-    @Column(nullable = false)
-
-    private String unit;
-
-   
-
-    @Column(nullable = false)
-
-    private LocalDateTime createdAt;
-
-   
-
-    public ActivityType() {}
-
-   
-
-    public ActivityType(Long id, String typeName, ActivityCategory category, String unit, LocalDateTime createdAt) {
-
-        this.id = id;
-
-        this.typeName = typeName;
-
-        this.category = category;
-
-        this.unit = unit;
-
-        this.createdAt = createdAt;
-
-    }
-
-   
-
-    @PrePersist
-
-    public void prePersist() {
-
-        createdAt = LocalDateTime.now();
-
-    }
-
-   
-
-    // Getters and Setters
-
-    public Long getId() { return id; }
-
-    public void setId(Long id) { this.id = id; }
-
-   
-
-    public String getTypeName() { return typeName; }
-
-    public void setTypeName(String typeName) { this.typeName = typeName; }
-
-   
-
-    public ActivityCategory getCategory() { return category; }
-
-    public void setCategory(ActivityCategory category) { this.category = category; }
-
-   
-
-    public String getUnit() { return unit; }
-
-    public void setUnit(String unit) { this.unit = unit; }
-
-   
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-
+public LocalDateTime getCreatedAt() { return createdAt; }
+public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

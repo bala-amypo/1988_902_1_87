@@ -1,113 +1,61 @@
+
 package com.example.demo.entity;
 
- 
-
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
- 
-
 @Entity
-
 @Table(name = "emission_factors")
-
 public class EmissionFactor {
 
-   
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private Long id;
 
-    @Id
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "activity_type_id", nullable = false)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+private ActivityType activityType;
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+@Column(nullable = false)
+private Double factorValue; // e.g. kg CO2 per unit
 
-    private Long id;
+@Column(nullable = false)
+private String unit;
 
-   
+@Column(nullable = false)
+private LocalDateTime createdAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+public EmissionFactor() {
+}
 
-    @JoinColumn(name = "activity_type_id", nullable = false)
+public EmissionFactor(Long id, ActivityType activityType, Double factorValue, String unit, LocalDateTime createdAt) {
+this.id = id;
+this.activityType = activityType;
+this.factorValue = factorValue;
+this.unit = unit;
+this.createdAt = createdAt;
+}
 
-    private ActivityType activityType;
+@PrePersist
+protected void onCreate() {
+createdAt = LocalDateTime.now();
+}
 
-   
+// getters and setters
+public Long getId() { return id; }
+public void setId(Long id) { this.id = id; }
 
-    @Column(nullable = false)
+public ActivityType getActivityType() { return activityType; }
+public void setActivityType(ActivityType activityType) { this.activityType = activityType; }
 
-    private Double factorValue;
+public Double getFactorValue() { return factorValue; }
+public void setFactorValue(Double factorValue) { this.factorValue = factorValue; }
 
-   
+public String getUnit() { return unit; }
+public void setUnit(String unit) { this.unit = unit; }
 
-    @Column(nullable = false)
-
-    private String unit;
-
-   
-
-    @Column(nullable = false)
-
-    private LocalDateTime createdAt;
-
-   
-
-    public EmissionFactor() {}
-
-   
-
-    public EmissionFactor(Long id, ActivityType activityType, Double factorValue, String unit, LocalDateTime createdAt) {
-
-        this.id = id;
-
-        this.activityType = activityType;
-
-        this.factorValue = factorValue;
-
-        this.unit = unit;
-
-        this.createdAt = createdAt;
-
-    }
-
-   
-
-    @PrePersist
-
-    public void prePersist() {
-
-        createdAt = LocalDateTime.now();
-
-    }
-
-   
-
-    // Getters and Setters
-
-    public Long getId() { return id; }
-
-    public void setId(Long id) { this.id = id; }
-
-   
-
-    public ActivityType getActivityType() { return activityType; }
-
-    public void setActivityType(ActivityType activityType) { this.activityType = activityType; }
-
-   
-
-    public Double getFactorValue() { return factorValue; }
-
-    public void setFactorValue(Double factorValue) { this.factorValue = factorValue; }
-
-   
-
-    public String getUnit() { return unit; }
-
-    public void setUnit(String unit) { this.unit = unit; }
-
-   
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
-
+public LocalDateTime getCreatedAt() { return createdAt; }
+public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
