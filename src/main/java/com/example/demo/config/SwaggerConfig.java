@@ -1,9 +1,19 @@
 package com.example.demo.config;
 
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class SwaggerConfig {
-    // Keep this empty for now or add other Swagger-related helpers.
-    // Do NOT define another OpenAPI @Bean here.
+
+    @Bean
+    public OpenAPI customOpenAPI() {
+        return new OpenAPI()
+                .info(new Info()
+                        .title("Carbon Footprint API")
+                        .version("1.0")
+                        .description("Simple Spring Boot API without security/DTOs"));
+    }
 }
