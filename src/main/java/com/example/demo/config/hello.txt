@@ -1,98 +1,266 @@
+package com.example.demo.config;
 
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-EmissionFactorController.java
+@Configuration
+public class SwaggerConfig {
 
+@Bean
+public OpenAPI customOpenAPI() {
+return new OpenAPI()
+.info(new Info()
+.title("Carbon Footprint API")
+.version("1.0")
+.description("Simple Spring Boot API without security/DTOs"));
+}
+}
 
 
 
 
 
-UserController.java
 
 
 
+package com.example.demo.controller;
 
+import com.example.demo.entity.ActivityCategory;
+import com.example.demo.service.ActivityCategoryService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
+@RestController
+@RequestMapping("/api/categories")
+public class ActivityCategoryController {
 
+private final ActivityCategoryService categoryService;
 
-entity
+public ActivityCategoryController(ActivityCategoryService categoryService) {
+this.categoryService = categoryService;
+}
 
-ActivityCategory.java
+@PostMapping
+public ResponseEntity<ActivityCategory> createCategory(@RequestBody ActivityCategory category) {
+ActivityCategory saved = categoryService.createCategory(category);
+return ResponseEntity.ok(saved);
+}
 
+@GetMapping("/{id}")
+public ResponseEntity<ActivityCategory> getCategory(@PathVariable Long id) {
+return ResponseEntity.ok(categoryService.getCategory(id));
+}
 
+@GetMapping
+public ResponseEntity<List<ActivityCategory>> getAllCategories() {
+return ResponseEntity.ok(categoryService.getAllCategories());
+}
+}
 
 
 
 
-ActivityLog.java
 
+package com.example.demo.controller;
 
+import com.example.demo.entity.ActivityLog;
+import com.example.demo.service.ActivityLogService;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.util.List;
 
+@RestController
+@RequestMapping("/api/logs")
+public class ActivityLogController {
 
-ActivityType.java
+private final ActivityLogService logService;
 
+public ActivityLogController(ActivityLogService logService) {
+this.logService = logService;
+}
 
+// Log activity for a user and type
+@PostMapping("/{userId}/{typeId}")
+public ResponseEntity<ActivityLog> logActivity(@PathVariable Long userId,
+@PathVariable Long typeId,
+@RequestBody ActivityLog log) {
+ActivityLog saved = logService.logActivity(userId, typeId, log);
+return ResponseEntity.ok(saved);
+}
 
+// Get log by id
+@GetMapping("/{id}")
+public ResponseEntity<ActivityLog> getLog(@PathVariable Long id) {
+return ResponseEntity.ok(logService.getLog(id));
+}
 
+// All logs for user
+@GetMapping("/user/{userId}")
+public ResponseEntity<List<ActivityLog>> getLogsByUser(@PathVariable Long userId) {
+return ResponseEntity.ok(logService.getLogsByUser(userId));
+}
 
-EmissionFactor.java
+// Logs by user and date range
+@GetMapping("/user/{userId}/range")
+public ResponseEntity<List<ActivityLog>> getLogsByUserAndDate(
+@PathVariable Long userId,
+@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
 
+return ResponseEntity.ok(logService.getLogsByUserAndDate(userId, start, end));
+}
+}
 
 
 
 
 
-User.java
+package com.example.demo.controller;
 
+import com.example.demo.entity.ActivityType;
+import com.example.demo.service.ActivityTypeService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
+@RestController
+@RequestMapping("/api/types")
+public class ActivityTypeController {
 
+private final ActivityTypeService typeService;
 
+public ActivityTypeController(ActivityTypeService typeService) {
+this.typeService = typeService;
+}
 
+// Create a type under a category
+@PostMapping("/category/{categoryId}")
+public ResponseEntity<ActivityType> createType(@PathVariable Long categoryId,
+@RequestBody ActivityType type) {
+ActivityType saved = typeService.createType(categoryId, type);
+return ResponseEntity.ok(saved);
+}
 
-exception
+// Get type by id
+@GetMapping("/{id}")
+public ResponseEntity<ActivityType> getType(@PathVariable Long id) {
+return ResponseEntity.ok(typeService.getType(id));
+}
 
-GlobalExceptionHandler.java
+// Get all types for a category
+@GetMapping("/category/{categoryId}")
+public ResponseEntity<List<ActivityType>> getTypesByCategory(@PathVariable Long categoryId) {
+return ResponseEntity.ok(typeService.getTypesByCategory(categoryId));
+}
+}
 
 
 
 
 
-ResourceNotFoundException.java
+package com.example.demo.controller;
 
+import com.example.demo.entity.EmissionFactor;
+import com.example.demo.service.EmissionFactorService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
+@RestController
+@RequestMapping("/api/factors")
+public class EmissionFactorController {
 
-ValidationException.java
+private final EmissionFactorService factorService;
 
+public EmissionFactorController(EmissionFactorService factorService) {
+this.factorService = factorService;
+}
 
+// Create factor for an activity type
+@PostMapping("/type/{activityTypeId}")
+public ResponseEntity<EmissionFactor> createFactor(@PathVariable Long activityTypeId,
+@RequestBody EmissionFactor factor) {
+try {
+EmissionFactor saved = factorService.createFactor(activityTypeId, factor);
+return ResponseEntity.ok(saved);
+} catch (Exception e) {
+throw e; // Let GlobalExceptionHandler handle it
+}
+}
 
-repository
+// Get factor by id
+@GetMapping("/{id}")
+public ResponseEntity<EmissionFactor> getFactor(@PathVariable Long id) {
+return ResponseEntity.ok(factorService.getFactor(id));
+}
 
+// Get factor by activity type id
+@GetMapping("/type/{activityTypeId}")
+public ResponseEntity<EmissionFactor> getFactorByType(@PathVariable Long activityTypeId) {
+return ResponseEntity.ok(factorService.getFactorByType(activityTypeId));
+}
 
+// Get all
+@GetMapping
+public ResponseEntity<List<EmissionFactor>> getAllFactors() {
+return ResponseEntity.ok(factorService.getAllFactors());
+}
+}
 
-ActivityCategoryRepository.java
 
 
 
 
-ActivityLogRepository.java
 
-ActivityTypeRepository.java
 
+package com.example.demo.controller;
 
+import com.example.demo.entity.User;
+import com.example.demo.service.UserService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 
+@RestController
+@RequestMapping("/api/users")
+public class UserController {
 
-EmissionFactorRepository.java 
+private final UserService userService;
 
+public UserController(UserService userService) {
+this.userService = userService;
+}
 
+// Register / create user
+@PostMapping
+public ResponseEntity<User> createUser(@RequestBody User user) {
+User saved = userService.registerUser(user);
+return ResponseEntity.ok(saved);
+}
 
+// Get by id
+@GetMapping("/{id}")
+public ResponseEntity<User> getUser(@PathVariable Long id) {
+return ResponseEntity.ok(userService.getUser(id));
+}
 
+// Get all
+@GetMapping
+public ResponseEntity<List<User>> getAllUsers() {
+return ResponseEntity.ok(userService.getAllUsers());
+}
+}
 
-UserRepository.java
 
 
 
@@ -103,67 +271,964 @@ UserRepository.java
 
 
 
-service
+package com.example.demo.entity;
 
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
-ActivityCategoryService.java 
+@Entity
+@Table(name = "activity_categories")
+public class ActivityCategory {
 
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private Long id;
 
+@Column(unique = true, nullable = false)
+private String categoryName;
 
+private String description;
 
-ActivityLogService.java
+@Column(nullable = false)
+private LocalDateTime createdAt;
 
+public ActivityCategory() {
+}
 
+public ActivityCategory(Long id, String categoryName, String description, LocalDateTime createdAt) {
+this.id = id;
+this.categoryName = categoryName;
+this.description = description;
+this.createdAt = createdAt;
+}
 
+@PrePersist
+protected void onCreate() {
+createdAt = LocalDateTime.now();
+}
 
-ActivityTypeService.java
+// getters and setters
+public Long getId() { return id; }
+public void setId(Long id) { this.id = id; }
 
+public String getCategoryName() { return categoryName; }
+public void setCategoryName(String categoryName) { this.categoryName = categoryName; }
 
+public String getDescription() { return description; }
+public void setDescription(String description) { this.description = description; }
 
+public LocalDateTime getCreatedAt() { return createdAt; }
+public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+}
 
 
 
-EmissionFactorService.java
 
 
 
 
-UserService.java
+package com.example.demo.entity;
 
+import jakarta.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "activity_logs")
+public class ActivityLog {
 
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private Long id;
 
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "activity_type_id", nullable = false)
+private ActivityType activityType;
 
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "user_id", nullable = false)
+private User user;
 
+@Column(nullable = false)
+private Double quantity;
 
-service/impl
+@Column(nullable = false)
+private LocalDate activityDate;
 
-ActivityCategoryServiceImpl.java
+@Column(nullable = false)
+private LocalDateTime loggedAt;
 
+@Column(nullable = false)
+private Double estimatedEmission;
 
+public ActivityLog() {
+}
 
+public ActivityLog(Long id, ActivityType activityType, User user, Double quantity,
+LocalDate activityDate, LocalDateTime loggedAt, Double estimatedEmission) {
+this.id = id;
+this.activityType = activityType;
+this.user = user;
+this.quantity = quantity;
+this.activityDate = activityDate;
+this.loggedAt = loggedAt;
+this.estimatedEmission = estimatedEmission;
+}
 
-ActivityLogServiceImpl.java
+@PrePersist
+protected void onCreate() {
+loggedAt = LocalDateTime.now();
+}
 
+// getters and setters
+public Long getId() { return id; }
+public void setId(Long id) { this.id = id; }
 
+public ActivityType getActivityType() { return activityType; }
+public void setActivityType(ActivityType activityType) { this.activityType = activityType; }
 
+public User getUser() { return user; }
+public void setUser(User user) { this.user = user; }
 
+public Double getQuantity() { return quantity; }
+public void setQuantity(Double quantity) { this.quantity = quantity; }
 
+public LocalDate getActivityDate() { return activityDate; }
+public void setActivityDate(LocalDate activityDate) { this.activityDate = activityDate; }
 
-ActivityTypeServiceImpl.java
+public LocalDateTime getLoggedAt() { return loggedAt; }
+public void setLoggedAt(LocalDateTime loggedAt) { this.loggedAt = loggedAt; }
 
+public Double getEstimatedEmission() { return estimatedEmission; }
+public void setEstimatedEmission(Double estimatedEmission) { this.estimatedEmission = estimatedEmission; }
+}
 
 
 
-EmissionFactorServiceImpl.java 
 
 
 
-UserServiceImpl.java
 
+package com.example.demo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
 
-application.properties
+@Entity
+@Table(name = "activity_types")
+public class ActivityType {
+
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private Long id;
+
+@Column(nullable = false)
+private String typeName;
+
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "category_id", nullable = false)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+private ActivityCategory category;
+
+@Column(nullable = false)
+private String unit; // e.g. "km", "kWh"
+
+@Column(nullable = false)
+private LocalDateTime createdAt;
+
+public ActivityType() {
+}
+
+public ActivityType(Long id, String typeName, ActivityCategory category, String unit, LocalDateTime createdAt) {
+this.id = id;
+this.typeName = typeName;
+this.category = category;
+this.unit = unit;
+this.createdAt = createdAt;
+}
+
+@PrePersist
+protected void onCreate() {
+createdAt = LocalDateTime.now();
+}
+
+// getters and setters
+public Long getId() { return id; }
+public void setId(Long id) { this.id = id; }
+
+public String getTypeName() { return typeName; }
+public void setTypeName(String typeName) { this.typeName = typeName; }
+
+public ActivityCategory getCategory() { return category; }
+public void setCategory(ActivityCategory category) { this.category = category; }
+
+public String getUnit() { return unit; }
+public void setUnit(String unit) { this.unit = unit; }
+
+public LocalDateTime getCreatedAt() { return createdAt; }
+public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+}
+
+
+
+
+
+
+
+
+package com.example.demo.entity;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "emission_factors")
+public class EmissionFactor {
+
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private Long id;
+
+@ManyToOne(fetch = FetchType.LAZY)
+@JoinColumn(name = "activity_type_id", nullable = false)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+private ActivityType activityType;
+
+@Column(nullable = false)
+private Double factorValue; // e.g. kg CO2 per unit
+
+@Column(nullable = false)
+private String unit;
+
+@Column(nullable = false)
+private LocalDateTime createdAt;
+
+public EmissionFactor() {
+}
+
+public EmissionFactor(Long id, ActivityType activityType, Double factorValue, String unit, LocalDateTime createdAt) {
+this.id = id;
+this.activityType = activityType;
+this.factorValue = factorValue;
+this.unit = unit;
+this.createdAt = createdAt;
+}
+
+@PrePersist
+protected void onCreate() {
+createdAt = LocalDateTime.now();
+}
+
+// getters and setters
+public Long getId() { return id; }
+public void setId(Long id) { this.id = id; }
+
+public ActivityType getActivityType() { return activityType; }
+public void setActivityType(ActivityType activityType) { this.activityType = activityType; }
+
+public Double getFactorValue() { return factorValue; }
+public void setFactorValue(Double factorValue) { this.factorValue = factorValue; }
+
+public String getUnit() { return unit; }
+public void setUnit(String unit) { this.unit = unit; }
+
+public LocalDateTime getCreatedAt() { return createdAt; }
+public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+}
+
+
+
+
+
+
+
+
+
+
+
+package com.example.demo.entity;
+
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+
+@Entity
+@Table(name = "users")
+public class User {
+
+@Id
+@GeneratedValue(strategy = GenerationType.IDENTITY)
+private Long id;
+
+@Column(nullable = false)
+private String fullName;
+
+@Column(unique = true, nullable = false)
+private String email;
+
+@Column(nullable = false)
+private String password;
+
+@Column(nullable = false)
+private String role; // e.g. "USER" or "ADMIN" (for future use)
+
+@Column(nullable = false)
+private LocalDateTime createdAt;
+
+public User() {
+}
+
+public User(Long id, String fullName, String email, String password, String role, LocalDateTime createdAt) {
+this.id = id;
+this.fullName = fullName;
+this.email = email;
+this.password = password;
+this.role = role;
+this.createdAt = createdAt;
+}
+
+@PrePersist
+protected void onCreate() {
+createdAt = LocalDateTime.now();
+}
+
+// getters and setters
+public Long getId() { return id; }
+public void setId(Long id) { this.id = id; }
+
+public String getFullName() { return fullName; }
+public void setFullName(String fullName) { this.fullName = fullName; }
+
+public String getEmail() { return email; }
+public void setEmail(String email) { this.email = email; }
+
+public String getPassword() { return password; }
+public void setPassword(String password) { this.password = password; }
+
+public String getRole() { return role; }
+public void setRole(String role) { this.role = role; }
+
+public LocalDateTime getCreatedAt() { return createdAt; }
+public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+}
+
+
+
+
+
+
+
+package com.example.demo.exception;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+@ControllerAdvice
+public class GlobalExceptionHandler {
+
+@ExceptionHandler(ValidationException.class)
+public ResponseEntity<String> handleValidation(ValidationException ex) {
+return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+}
+
+@ExceptionHandler(ResourceNotFoundException.class)
+public ResponseEntity<String> handleNotFound(ResourceNotFoundException ex) {
+return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+}
+
+@ExceptionHandler(Exception.class)
+public ResponseEntity<String> handleGeneric(Exception ex) {
+ex.printStackTrace(); // Log the actual error
+return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+.body("Internal server error: " + ex.getMessage());
+}
+}
+
+
+
+
+
+
+package com.example.demo.exception;
+
+public class ResourceNotFoundException extends RuntimeException {
+
+public ResourceNotFoundException(String message) {
+super(message);
+}
+}
+
+
+
+
+package com.example.demo.exception;
+
+public class ValidationException extends RuntimeException {
+
+public ValidationException(String message) {
+super(message);
+}
+}
+
+
+
+
+package com.example.demo.repository;
+
+import com.example.demo.entity.ActivityCategory;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ActivityCategoryRepository extends JpaRepository<ActivityCategory, Long> {
+
+boolean existsByCategoryName(String categoryName);
+}
+
+
+
+
+
+
+
+
+package com.example.demo.repository;
+
+import com.example.demo.entity.ActivityLog;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.time.LocalDate;
+import java.util.List;
+
+public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long> {
+
+List<ActivityLog> findByUser_Id(Long userId);
+
+List<ActivityLog> findByUser_IdAndActivityDateBetween(Long userId, LocalDate start, LocalDate end);
+}
+
+
+
+
+
+
+
+
+
+
+
+package com.example.demo.repository;
+
+import com.example.demo.entity.ActivityType;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+
+public interface ActivityTypeRepository extends JpaRepository<ActivityType, Long> {
+
+List<ActivityType> findByCategory_Id(Long categoryId);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+package com.example.demo.repository;
+
+import com.example.demo.entity.EmissionFactor;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface EmissionFactorRepository extends JpaRepository<EmissionFactor, Long> {
+
+Optional<EmissionFactor> findByActivityType_Id(Long activityTypeId);
+}
+
+
+
+
+
+package com.example.demo.repository;
+
+import com.example.demo.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+
+public interface UserRepository extends JpaRepository<User, Long> {
+
+boolean existsByEmail(String email);
+
+Optional<User> findByEmail(String email);
+}
+
+
+
+
+
+
+
+
+
+package com.example.demo.service;
+
+import com.example.demo.entity.ActivityCategory;
+
+import java.util.List;
+
+public interface ActivityCategoryService {
+
+ActivityCategory createCategory(ActivityCategory category);
+
+ActivityCategory getCategory(Long id);
+
+List<ActivityCategory> getAllCategories();
+}
+
+
+
+package com.example.demo.service;
+
+import com.example.demo.entity.ActivityLog;
+
+import java.time.LocalDate;
+import java.util.List;
+
+public interface ActivityLogService {
+
+ActivityLog logActivity(Long userId, Long typeId, ActivityLog log);
+
+ActivityLog getLog(Long id);
+
+List<ActivityLog> getLogsByUser(Long userId);
+
+List<ActivityLog> getLogsByUserAndDate(Long userId, LocalDate start, LocalDate end);
+}
+
+
+
+
+
+
+
+
+
+package com.example.demo.service;
+
+import com.example.demo.entity.ActivityType;
+
+import java.util.List;
+
+public interface ActivityTypeService {
+
+ActivityType createType(Long categoryId, ActivityType type);
+
+ActivityType getType(Long id);
+
+List<ActivityType> getTypesByCategory(Long categoryId);
+}
+
+
+
+
+
+
+
+
+
+
+
+package com.example.demo.service;
+
+import com.example.demo.entity.EmissionFactor;
+
+import java.util.List;
+
+public interface EmissionFactorService {
+
+EmissionFactor createFactor(Long activityTypeId, EmissionFactor factor);
+
+EmissionFactor getFactor(Long id);
+
+EmissionFactor getFactorByType(Long activityTypeId);
+
+List<EmissionFactor> getAllFactors();
+}
+
+
+
+
+
+
+
+
+package com.example.demo.service;
+
+import com.example.demo.entity.User;
+
+import java.util.List;
+
+public interface UserService {
+
+User registerUser(User user);
+
+User getUser(Long id);
+
+List<User> getAllUsers();
+
+User getByEmail(String email);
+}
+
+
+
+
+
+
+package com.example.demo.service.impl;
+
+import com.example.demo.entity.ActivityCategory;
+import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.exception.ValidationException;
+import com.example.demo.repository.ActivityCategoryRepository;
+import com.example.demo.service.ActivityCategoryService;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class ActivityCategoryServiceImpl implements ActivityCategoryService {
+
+private final ActivityCategoryRepository categoryRepository;
+
+public ActivityCategoryServiceImpl(ActivityCategoryRepository categoryRepository) {
+this.categoryRepository = categoryRepository;
+}
+
+@Override
+public ActivityCategory createCategory(ActivityCategory category) {
+if (categoryRepository.existsByCategoryName(category.getCategoryName())) {
+throw new ValidationException("Category name must be unique");
+}
+return categoryRepository.save(category);
+}
+
+@Override
+public ActivityCategory getCategory(Long id) {
+return categoryRepository.findById(id)
+.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+}
+
+@Override
+public List<ActivityCategory> getAllCategories() {
+return categoryRepository.findAll();
+}
+}
+
+
+
+
+
+
+package com.example.demo.service.impl;
+
+import com.example.demo.entity.ActivityLog;
+import com.example.demo.entity.ActivityType;
+import com.example.demo.entity.EmissionFactor;
+import com.example.demo.entity.User;
+import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.exception.ValidationException;
+import com.example.demo.repository.ActivityLogRepository;
+import com.example.demo.repository.ActivityTypeRepository;
+import com.example.demo.repository.EmissionFactorRepository;
+import com.example.demo.repository.UserRepository;
+import com.example.demo.service.ActivityLogService;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Service
+public class ActivityLogServiceImpl implements ActivityLogService {
+
+private final ActivityLogRepository logRepository;
+private final UserRepository userRepository;
+private final ActivityTypeRepository typeRepository;
+private final EmissionFactorRepository factorRepository;
+
+public ActivityLogServiceImpl(ActivityLogRepository logRepository,
+UserRepository userRepository,
+ActivityTypeRepository typeRepository,
+EmissionFactorRepository factorRepository) {
+this.logRepository = logRepository;
+this.userRepository = userRepository;
+this.typeRepository = typeRepository;
+this.factorRepository = factorRepository;
+}
+
+@Override
+public ActivityLog logActivity(Long userId, Long typeId, ActivityLog log) {
+User user = userRepository.findById(userId)
+.orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+ActivityType type = typeRepository.findById(typeId)
+.orElseThrow(() -> new ResourceNotFoundException("Activity type not found"));
+
+if (log.getQuantity() == null || log.getQuantity() <= 0) {
+throw new ValidationException("Quantity must be greater than zero");
+}
+
+if (log.getActivityDate() == null) {
+throw new ValidationException("Activity date is required");
+}
+
+if (log.getActivityDate().isAfter(LocalDate.now())) {
+throw new ValidationException("Activity date cannot be in the future");
+}
+
+EmissionFactor factor = factorRepository.findByActivityType_Id(typeId)
+.orElseThrow(() -> new ValidationException("No emission factor configured"));
+
+Double estimated = log.getQuantity() * factor.getFactorValue();
+log.setEstimatedEmission(estimated);
+log.setUser(user);
+log.setActivityType(type);
+if (log.getLoggedAt() == null) {
+log.setLoggedAt(LocalDateTime.now());
+}
+
+return logRepository.save(log);
+}
+
+@Override
+public ActivityLog getLog(Long id) {
+return logRepository.findById(id)
+.orElseThrow(() -> new ResourceNotFoundException("Activity log not found"));
+}
+
+@Override
+public List<ActivityLog> getLogsByUser(Long userId) {
+return logRepository.findByUser_Id(userId);
+}
+
+@Override
+public List<ActivityLog> getLogsByUserAndDate(Long userId, LocalDate start, LocalDate end) {
+return logRepository.findByUser_IdAndActivityDateBetween(userId, start, end);
+}
+}
+
+
+
+
+
+
+
+package com.example.demo.service.impl;
+
+import com.example.demo.entity.ActivityCategory;
+import com.example.demo.entity.ActivityType;
+import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.exception.ValidationException;
+import com.example.demo.repository.ActivityCategoryRepository;
+import com.example.demo.repository.ActivityTypeRepository;
+import com.example.demo.service.ActivityTypeService;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class ActivityTypeServiceImpl implements ActivityTypeService {
+
+private final ActivityTypeRepository typeRepository;
+private final ActivityCategoryRepository categoryRepository;
+
+public ActivityTypeServiceImpl(ActivityTypeRepository typeRepository,
+ActivityCategoryRepository categoryRepository) {
+this.typeRepository = typeRepository;
+this.categoryRepository = categoryRepository;
+}
+
+@Override
+public ActivityType createType(Long categoryId, ActivityType type) {
+ActivityCategory category = categoryRepository.findById(categoryId)
+.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
+
+if (type.getTypeName() == null || type.getTypeName().trim().isEmpty()) {
+throw new ValidationException("Type name is required");
+}
+if (type.getUnit() == null || type.getUnit().trim().isEmpty()) {
+throw new ValidationException("Unit is required");
+}
+
+type.setCategory(category);
+return typeRepository.save(type);
+}
+
+@Override
+public ActivityType getType(Long id) {
+return typeRepository.findById(id)
+.orElseThrow(() -> new ResourceNotFoundException("Activity type not found"));
+}
+
+@Override
+public List<ActivityType> getTypesByCategory(Long categoryId) {
+return typeRepository.findByCategory_Id(categoryId);
+}
+}
+
+
+
+
+
+
+
+
+package com.example.demo.service.impl;
+
+import com.example.demo.entity.ActivityType;
+import com.example.demo.entity.EmissionFactor;
+import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.exception.ValidationException;
+import com.example.demo.repository.ActivityTypeRepository;
+import com.example.demo.repository.EmissionFactorRepository;
+import com.example.demo.service.EmissionFactorService;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class EmissionFactorServiceImpl implements EmissionFactorService {
+
+private final EmissionFactorRepository factorRepository;
+private final ActivityTypeRepository typeRepository;
+
+public EmissionFactorServiceImpl(EmissionFactorRepository factorRepository,
+ActivityTypeRepository typeRepository) {
+this.factorRepository = factorRepository;
+this.typeRepository = typeRepository;
+}
+
+@Override
+public EmissionFactor createFactor(Long activityTypeId, EmissionFactor factor) {
+ActivityType type = typeRepository.findById(activityTypeId)
+.orElseThrow(() -> new ResourceNotFoundException("Activity type not found"));
+
+if (factor.getFactorValue() == null || factor.getFactorValue() <= 0) {
+throw new ValidationException("Factor value must be greater than zero");
+}
+
+if (factor.getUnit() == null || factor.getUnit().trim().isEmpty()) {
+throw new ValidationException("Unit is required");
+}
+
+factor.setActivityType(type);
+return factorRepository.save(factor);
+}
+
+@Override
+public EmissionFactor getFactor(Long id) {
+return factorRepository.findById(id)
+.orElseThrow(() -> new ResourceNotFoundException("Emission factor not found"));
+}
+
+@Override
+public EmissionFactor getFactorByType(Long activityTypeId) {
+return factorRepository.findByActivityType_Id(activityTypeId)
+.orElseThrow(() -> new ResourceNotFoundException("Emission factor not found"));
+}
+
+@Override
+public List<EmissionFactor> getAllFactors() {
+return factorRepository.findAll();
+}
+}
+
+
+
+
+
+
+
+package com.example.demo.service.impl;
+
+import com.example.demo.entity.User;
+import com.example.demo.exception.ResourceNotFoundException;
+import com.example.demo.exception.ValidationException;
+import com.example.demo.repository.UserRepository;
+import com.example.demo.service.UserService;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class UserServiceImpl implements UserService {
+
+private final UserRepository userRepository;
+
+public UserServiceImpl(UserRepository userRepository) {
+this.userRepository = userRepository;
+}
+
+@Override
+public User registerUser(User user) {
+if (userRepository.existsByEmail(user.getEmail())) {
+throw new ValidationException("Email already in use");
+}
+if (user.getPassword() == null || user.getPassword().length() < 8) {
+throw new ValidationException("Password must be at least 8 characters");
+}
+if (user.getRole() == null) {
+user.setRole("USER");
+}
+return userRepository.save(user);
+}
+
+@Override
+public User getUser(Long id) {
+return userRepository.findById(id)
+.orElseThrow(() -> new ResourceNotFoundException("User not found"));
+}
+
+@Override
+public List<User> getAllUsers() {
+return userRepository.findAll();
+}
+
+@Override
+public User getByEmail(String email) {
+return userRepository.findByEmail(email)
+.orElseThrow(() -> new ResourceNotFoundException("User not found"));
+}
+}
+
+
+
+
+
+package com.example.demo;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class DemoApplication {
+
+public static void main(String[] args) {
+SpringApplication.run(DemoApplication.class, args);
+}
+
+}
+
+
 
 spring.application.name=demo
 server.port=8080
@@ -174,6 +1239,14 @@ spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.show-sql=true
 spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+
+
+
+
+
+
+
+
 
 
 
