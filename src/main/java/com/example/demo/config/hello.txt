@@ -72,85 +72,6 @@
 
 
 
-package com.example.demo.repository;
-
-import com.example.demo.entity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.Optional;
-
-public interface UserRepository extends JpaRepository<User, Long> {
-
-boolean existsByEmail(String email);
-
-Optional<User> findByEmail(String email);
-}
-
-
-
-
-
-
-
-
-
-package com.example.demo.service;
-
-import com.example.demo.entity.ActivityCategory;
-
-import java.util.List;
-
-public interface ActivityCategoryService {
-
-ActivityCategory createCategory(ActivityCategory category);
-
-ActivityCategory getCategory(Long id);
-
-List<ActivityCategory> getAllCategories();
-}
-
-
-
-package com.example.demo.service;
-
-import com.example.demo.entity.ActivityLog;
-
-import java.time.LocalDate;
-import java.util.List;
-
-public interface ActivityLogService {
-
-ActivityLog logActivity(Long userId, Long typeId, ActivityLog log);
-
-ActivityLog getLog(Long id);
-
-List<ActivityLog> getLogsByUser(Long userId);
-
-List<ActivityLog> getLogsByUserAndDate(Long userId, LocalDate start, LocalDate end);
-}
-
-
-
-
-
-
-
-
-
-package com.example.demo.service;
-
-import com.example.demo.entity.ActivityType;
-
-import java.util.List;
-
-public interface ActivityTypeService {
-
-ActivityType createType(Long categoryId, ActivityType type);
-
-ActivityType getType(Long id);
-
-List<ActivityType> getTypesByCategory(Long categoryId);
-}
 
 
 
@@ -162,22 +83,19 @@ List<ActivityType> getTypesByCategory(Long categoryId);
 
 
 
-package com.example.demo.service;
 
-import com.example.demo.entity.EmissionFactor;
 
-import java.util.List;
 
-public interface EmissionFactorService {
 
-EmissionFactor createFactor(Long activityTypeId, EmissionFactor factor);
 
-EmissionFactor getFactor(Long id);
 
-EmissionFactor getFactorByType(Long activityTypeId);
 
-List<EmissionFactor> getAllFactors();
-}
+
+
+
+
+
+
 
 
 
