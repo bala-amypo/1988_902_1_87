@@ -18,7 +18,6 @@ public class OpenApiConfig {
                         .title("Carbon Footprint Estimator API")
                         .description("API for tracking and estimating carbon emissions")
                         .version("1.0"))
-                // Change URL/port here if your server address changes
                 .servers(List.of(
                         new Server().url("https://9547.pro604cr.amypo.ai/")
                 ));
