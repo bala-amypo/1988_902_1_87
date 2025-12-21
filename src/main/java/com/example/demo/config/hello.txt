@@ -50,42 +50,6 @@
 
 
 
-package com.example.demo.repository;
-
-import com.example.demo.entity.ActivityLog;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.time.LocalDate;
-import java.util.List;
-
-public interface ActivityLogRepository extends JpaRepository<ActivityLog, Long> {
-
-List<ActivityLog> findByUser_Id(Long userId);
-
-List<ActivityLog> findByUser_IdAndActivityDateBetween(Long userId, LocalDate start, LocalDate end);
-}
-
-
-
-
-
-
-
-
-
-
-
-package com.example.demo.repository;
-
-import com.example.demo.entity.ActivityType;
-import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
-
-public interface ActivityTypeRepository extends JpaRepository<ActivityType, Long> {
-
-List<ActivityType> findByCategory_Id(Long categoryId);
-}
 
 
 
@@ -98,17 +62,11 @@ List<ActivityType> findByCategory_Id(Long categoryId);
 
 
 
-package com.example.demo.repository;
 
-import com.example.demo.entity.EmissionFactor;
-import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.Optional;
 
-public interface EmissionFactorRepository extends JpaRepository<EmissionFactor, Long> {
 
-Optional<EmissionFactor> findByActivityType_Id(Long activityTypeId);
-}
+
 
 
 
