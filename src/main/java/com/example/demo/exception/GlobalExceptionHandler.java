@@ -1,4 +1,3 @@
-
 package com.example.demo.exception;
 
 import org.springframework.http.HttpStatus;
@@ -21,8 +20,7 @@ return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
 
 @ExceptionHandler(Exception.class)
 public ResponseEntity<String> handleGeneric(Exception ex) {
-ex.printStackTrace(); // Log the actual error
 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-.body("Internal server error: " + ex.getMessage());
+.body("Internal server error");
 }
 }

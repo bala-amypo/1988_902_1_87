@@ -1,4 +1,3 @@
-
 package com.example.demo.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -7,6 +6,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "activity_types")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class ActivityType {
 
 @Id
@@ -22,7 +22,7 @@ private String typeName;
 private ActivityCategory category;
 
 @Column(nullable = false)
-private String unit; // e.g. "km", "kWh"
+private String unit;
 
 @Column(nullable = false)
 private LocalDateTime createdAt;
@@ -46,16 +46,12 @@ createdAt = LocalDateTime.now();
 // getters and setters
 public Long getId() { return id; }
 public void setId(Long id) { this.id = id; }
-
 public String getTypeName() { return typeName; }
 public void setTypeName(String typeName) { this.typeName = typeName; }
-
 public ActivityCategory getCategory() { return category; }
 public void setCategory(ActivityCategory category) { this.category = category; }
-
 public String getUnit() { return unit; }
 public void setUnit(String unit) { this.unit = unit; }
-
 public LocalDateTime getCreatedAt() { return createdAt; }
 public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }
