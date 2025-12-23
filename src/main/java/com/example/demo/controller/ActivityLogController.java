@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/logs")
 @Tag(name = "Activity Logs", description = "Activity logging and tracking operations")
 public class ActivityLogController {

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/factors")
 @Tag(name = "Emission Factors", description = "Emission factor management operations")
 public class EmissionFactorController {

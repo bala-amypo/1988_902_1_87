@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/types")
 @Tag(name = "Activity Types", description = "Activity type management operations")
 public class ActivityTypeController {
