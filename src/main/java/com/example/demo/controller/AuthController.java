@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "*")
 @RequestMapping("/auth")
 @Tag(name = "Authentication", description = "User authentication operations")
 public class AuthController {
