@@ -11,4 +11,3 @@ List<ActivityCategory> getAllCategories();
 
 
 
-ActivityLogService.java

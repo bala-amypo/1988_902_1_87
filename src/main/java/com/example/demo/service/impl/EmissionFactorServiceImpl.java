@@ -18,26 +18,21 @@ public class EmissionFactorServiceImpl implements EmissionFactorService {
 private final EmissionFactorRepository factorRepository;
 private final ActivityTypeRepository typeRepository;
 
-public EmissionFactorServiceImpl(EmissionFactorRepository factorRepository,
-ActivityTypeRepository typeRepository) {
+public EmissionFactorServiceImpl(EmissionFactorRepository factorRepository, ActivityTypeRepository typeRepository) {
 this.factorRepository = factorRepository;
 this.typeRepository = typeRepository;
 }
 
 @Override
 public EmissionFactor createFactor(Long activityTypeId, EmissionFactor factor) {
-ActivityType type = typeRepository.findById(activityTypeId)
-.orElseThrow(() -> new ResourceNotFoundException("Activity type not found"));
+ActivityType activityType = typeRepository.findById(activityTypeId)
+.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
-if (factor.getFactorValue() == null || factor.getFactorValue() <= 0) {
+if (factor.getFactorValue() <= 0) {
 throw new ValidationException("Factor value must be greater than zero");
 }
 
-if (factor.getUnit() == null || factor.getUnit().trim().isEmpty()) {
-throw new ValidationException("Unit is required");
-}
-
-factor.setActivityType(type);
+factor.setActivityType(activityType);
 return factorRepository.save(factor);
 }
 
@@ -48,8 +43,8 @@ return factorRepository.findById(id)
 }
 
 @Override
-public EmissionFactor getFactorByType(Long activityTypeId) {
-return factorRepository.findByActivityType_Id(activityTypeId)
+public EmissionFactor getFactorByType(Long typeId) {
+return factorRepository.findByActivityType_Id(typeId)
 .orElseThrow(() -> new ResourceNotFoundException("Emission factor not found"));
 }
 

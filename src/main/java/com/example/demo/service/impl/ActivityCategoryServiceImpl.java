@@ -1,4 +1,3 @@
-
 package com.example.demo.service.impl;
 
 import com.example.demo.entity.ActivityCategory;
@@ -38,4 +37,3 @@ public List<ActivityCategory> getAllCategories() {
 return categoryRepository.findAll();
 }
 }
-
