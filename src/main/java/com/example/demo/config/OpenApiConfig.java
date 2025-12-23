@@ -19,7 +19,7 @@ public class OpenApiConfig {
                         .description("API for tracking and estimating carbon emissions")
                         .version("1.0"))
                 .servers(List.of(
-                        new Server().url("https://9547.pro604cr.amypo.ai/")
+                        new Server().url("https://9003.408procr.amypo.ai/")
                 ));
     }
 }
