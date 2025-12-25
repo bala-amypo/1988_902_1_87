@@ -13,9 +13,19 @@ this.quantity = quantity;
 this.activityDate = activityDate;
 }
 
-public Double getQuantity() { return quantity; }
-public void setQuantity(Double quantity) { this.quantity = quantity; }
+public Double getQuantity() {
+return quantity;
+}
 
-public LocalDate getActivityDate() { return activityDate; }
-public void setActivityDate(LocalDate activityDate) { this.activityDate = activityDate; }
+public void setQuantity(Double quantity) {
+this.quantity = quantity;
+}
+
+public LocalDate getActivityDate() {
+return activityDate;
+}
+
+public void setActivityDate(LocalDate activityDate) {
+this.activityDate = activityDate;
+}
 }

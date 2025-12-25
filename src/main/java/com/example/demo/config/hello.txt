@@ -35,116 +35,19 @@ AuthController.java
 
 
 EmissionFactorController.java
-package com.example.demo.controller;
 
-import com.example.demo.dto.EmissionFactorRequest;
-import com.example.demo.entity.EmissionFactor;
-import com.example.demo.service.EmissionFactorService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
-@RestController
-@RequestMapping("/api/factors")
-@SecurityRequirement(name = "Bearer Authentication")
-@Tag(name = "Emission Factors", description = "Emission factor management endpoints")
-public class EmissionFactorController {
-private final EmissionFactorService factorService;
-
-public EmissionFactorController(EmissionFactorService factorService) {
-this.factorService = factorService;
-}
-
-@PostMapping("/{activityTypeId}")
-@Operation(summary = "Create a new emission factor")
-public ResponseEntity<EmissionFactor> createFactor(@PathVariable Long activityTypeId,
-@RequestBody EmissionFactorRequest request) {
-EmissionFactor factor = new EmissionFactor();
-factor.setFactorValue(request.getFactorValue());
-factor.setUnit(request.getUnit());
-return ResponseEntity.ok(factorService.createFactor(activityTypeId, factor));
-}
-
-@GetMapping("/{id}")
-@Operation(summary = "Get emission factor by ID")
-public ResponseEntity<EmissionFactor> getFactorById(@PathVariable Long id) {
-return ResponseEntity.ok(factorService.getFactor(id));
-}
-
-@GetMapping("/type/{activityTypeId}")
-@Operation(summary = "Get emission factor by activity type")
-public ResponseEntity<EmissionFactor> getFactorByType(@PathVariable Long activityTypeId) {
-return ResponseEntity.ok(factorService.getFactorByType(activityTypeId));
-}
-
-@GetMapping
-@Operation(summary = "Get all emission factors")
-public ResponseEntity<List<EmissionFactor>> getAllFactors() {
-return ResponseEntity.ok(factorService.getAllFactors());
-}
-}
 
 
 
 
 TestController.java
-package com.example.demo.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-@RestController
-public class TestController {
-
-@GetMapping("/test")
-public String test() {
-return "Application is working!";
-}
-}
 
 
 
 
 UserController.java
-package com.example.demo.controller;
 
-import com.example.demo.entity.User;
-import com.example.demo.service.UserService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
-@RestController
-@RequestMapping("/api/users")
-@SecurityRequirement(name = "Bearer Authentication")
-@Tag(name = "Users", description = "User management endpoints")
-public class UserController {
-private final UserService userService;
-
-public UserController(UserService userService) {
-this.userService = userService;
-}
-
-@GetMapping("/all")
-@Operation(summary = "Get all users")
-public ResponseEntity<List<User>> getAllUsers() {
-return ResponseEntity.ok(userService.getAllUsers());
-}
-
-@GetMapping("/{id}")
-@Operation(summary = "Get user by ID")
-public ResponseEntity<User> getUserById(@PathVariable Long id) {
-return ResponseEntity.ok(userService.getUser(id));
-}
-}
 
 
 
@@ -153,148 +56,22 @@ return ResponseEntity.ok(userService.getUser(id));
 
 -------dto--------
 ActivityLogRequest.java
-package com.example.demo.dto;
-
-import java.time.LocalDate;
-
-public class ActivityLogRequest {
-private Double quantity;
-private LocalDate activityDate;
-
-public ActivityLogRequest() {}
-
-public ActivityLogRequest(Double quantity, LocalDate activityDate) {
-this.quantity = quantity;
-this.activityDate = activityDate;
-}
-
-public Double getQuantity() {
-return quantity;
-}
-
-public void setQuantity(Double quantity) {
-this.quantity = quantity;
-}
-
-public LocalDate getActivityDate() {
-return activityDate;
-}
-
-public void setActivityDate(LocalDate activityDate) {
-this.activityDate = activityDate;
-}
-}
 
 
 
 
 ActivityTypeRequest.java
-package com.example.demo.dto;
-
-public class ActivityTypeRequest {
-private String name;
-private String description;
-private String unit;
-
-public ActivityTypeRequest() {}
-
-public ActivityTypeRequest(String name, String description, String unit) {
-this.name = name;
-this.description = description;
-this.unit = unit;
-}
-
-public String getName() {
-return name;
-}
-
-public void setName(String name) {
-this.name = name;
-}
-
-public String getDescription() {
-return description;
-}
-
-public void setDescription(String description) {
-this.description = description;
-}
-
-public String getUnit() {
-return unit;
-}
-
-public void setUnit(String unit) {
-this.unit = unit;
-}
-}
 
 
 
 CategoryRequest.java
-package com.example.demo.dto;
 
-public class CategoryRequest {
-private String name;
-private String description;
-
-public CategoryRequest() {}
-
-public CategoryRequest(String name, String description) {
-this.name = name;
-this.description = description;
-}
-
-public String getName() {
-return name;
-}
-
-public void setName(String name) {
-this.name = name;
-}
-
-public String getDescription() {
-return description;
-}
-
-public void setDescription(String description) {
-this.description = description;
-}
-}
 
 
 
 
 EmissionFactorRequest.java
-package com.example.demo.dto;
 
-public class EmissionFactorRequest {
-private Double factorValue;
-private String unit;
-
-public EmissionFactorRequest() {}
-
-public EmissionFactorRequest(Double factorValue, String unit) {
-this.factorValue = factorValue;
-this.unit = unit;
-}
-
-public Double getFactorValue() {
-return factorValue;
-}
-
-public void setFactorValue(Double factorValue) {
-this.factorValue = factorValue;
-}
-
-public String getUnit() {
-return unit;
-}
-
-public void setUnit(String unit) {
-this.unit = unit;
-}
-}
 
 
 

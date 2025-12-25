@@ -1,7 +1,10 @@
 package com.example.demo.controller;
 
+import com.example.demo.dto.EmissionFactorRequest;
 import com.example.demo.entity.EmissionFactor;
 import com.example.demo.service.EmissionFactorService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,39 +12,41 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin
 @RequestMapping("/api/factors")
-@Tag(name = "Emission Factors", description = "Emission factor management operations")
+@SecurityRequirement(name = "Bearer Authentication")
+@Tag(name = "Emission Factors", description = "Emission factor management endpoints")
 public class EmissionFactorController {
-
 private final EmissionFactorService factorService;
 
 public EmissionFactorController(EmissionFactorService factorService) {
 this.factorService = factorService;
 }
 
-@PostMapping("/type/{activityTypeId}")
+@PostMapping("/{activityTypeId}")
+@Operation(summary = "Create a new emission factor")
 public ResponseEntity<EmissionFactor> createFactor(@PathVariable Long activityTypeId,
-@RequestBody EmissionFactor factor) {
-EmissionFactor savedFactor = factorService.createFactor(activityTypeId, factor);
-return ResponseEntity.ok(savedFactor);
+@RequestBody EmissionFactorRequest request) {
+EmissionFactor factor = new EmissionFactor();
+factor.setFactorValue(request.getFactorValue());
+factor.setUnit(request.getUnit());
+return ResponseEntity.ok(factorService.createFactor(activityTypeId, factor));
 }
 
 @GetMapping("/{id}")
-public ResponseEntity<EmissionFactor> getFactor(@PathVariable Long id) {
-EmissionFactor factor = factorService.getFactor(id);
-return ResponseEntity.ok(factor);
+@Operation(summary = "Get emission factor by ID")
+public ResponseEntity<EmissionFactor> getFactorById(@PathVariable Long id) {
+return ResponseEntity.ok(factorService.getFactor(id));
 }
 
 @GetMapping("/type/{activityTypeId}")
+@Operation(summary = "Get emission factor by activity type")
 public ResponseEntity<EmissionFactor> getFactorByType(@PathVariable Long activityTypeId) {
-EmissionFactor factor = factorService.getFactorByType(activityTypeId);
-return ResponseEntity.ok(factor);
+return ResponseEntity.ok(factorService.getFactorByType(activityTypeId));
 }
 
 @GetMapping
+@Operation(summary = "Get all emission factors")
 public ResponseEntity<List<EmissionFactor>> getAllFactors() {
-List<EmissionFactor> factors = factorService.getAllFactors();
-return ResponseEntity.ok(factors);
+return ResponseEntity.ok(factorService.getAllFactors());
 }
 }
