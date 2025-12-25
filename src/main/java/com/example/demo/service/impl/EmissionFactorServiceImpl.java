@@ -14,7 +14,6 @@ import java.util.List;
 
 @Service
 public class EmissionFactorServiceImpl implements EmissionFactorService {
-
 private final EmissionFactorRepository factorRepository;
 private final ActivityTypeRepository typeRepository;
 
@@ -29,7 +28,7 @@ ActivityType activityType = typeRepository.findById(activityTypeId)
 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
 if (factor.getFactorValue() <= 0) {
-throw new ValidationException("Factor value must be greater than zero");
+throw new ValidationException("Factor value must be greater than 0");
 }
 
 factor.setActivityType(activityType);
