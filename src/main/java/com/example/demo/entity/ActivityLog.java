@@ -1,27 +1,22 @@
 package com.example.demo.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "activity_logs")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class ActivityLog {
-
 @Id
 @GeneratedValue(strategy = GenerationType.IDENTITY)
 private Long id;
 
-@ManyToOne(fetch = FetchType.LAZY)
+@ManyToOne(fetch = FetchType.EAGER)
 @JoinColumn(name = "activity_type_id", nullable = false)
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 private ActivityType activityType;
 
-@ManyToOne(fetch = FetchType.LAZY)
+@ManyToOne(fetch = FetchType.EAGER)
 @JoinColumn(name = "user_id", nullable = false)
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 private User user;
 
 @Column(nullable = false)
@@ -33,11 +28,9 @@ private LocalDate activityDate;
 @Column(nullable = false)
 private LocalDateTime loggedAt;
 
-@Column(nullable = false)
 private Double estimatedEmission;
 
-public ActivityLog() {
-}
+public ActivityLog() {}
 
 public ActivityLog(Long id, ActivityType activityType, User user, Double quantity,
 LocalDate activityDate, LocalDateTime loggedAt, Double estimatedEmission) {
@@ -51,23 +44,65 @@ this.estimatedEmission = estimatedEmission;
 }
 
 @PrePersist
-protected void onCreate() {
+public void prePersist() {
+if (loggedAt == null) {
 loggedAt = LocalDateTime.now();
 }
+}
 
-// getters and setters
-public Long getId() { return id; }
-public void setId(Long id) { this.id = id; }
-public ActivityType getActivityType() { return activityType; }
-public void setActivityType(ActivityType activityType) { this.activityType = activityType; }
-public User getUser() { return user; }
-public void setUser(User user) { this.user = user; }
-public Double getQuantity() { return quantity; }
-public void setQuantity(Double quantity) { this.quantity = quantity; }
-public LocalDate getActivityDate() { return activityDate; }
-public void setActivityDate(LocalDate activityDate) { this.activityDate = activityDate; }
-public LocalDateTime getLoggedAt() { return loggedAt; }
-public void setLoggedAt(LocalDateTime loggedAt) { this.loggedAt = loggedAt; }
-public Double getEstimatedEmission() { return estimatedEmission; }
-public void setEstimatedEmission(Double estimatedEmission) { this.estimatedEmission = estimatedEmission; }
+public Long getId() {
+return id;
+}
+
+public void setId(Long id) {
+this.id = id;
+}
+
+public ActivityType getActivityType() {
+return activityType;
+}
+
+public void setActivityType(ActivityType activityType) {
+this.activityType = activityType;
+}
+
+public User getUser() {
+return user;
+}
+
+public void setUser(User user) {
+this.user = user;
+}
+
+public Double getQuantity() {
+return quantity;
+}
+
+public void setQuantity(Double quantity) {
+this.quantity = quantity;
+}
+
+public LocalDate getActivityDate() {
+return activityDate;
+}
+
+public void setActivityDate(LocalDate activityDate) {
+this.activityDate = activityDate;
+}
+
+public LocalDateTime getLoggedAt() {
+return loggedAt;
+}
+
+public void setLoggedAt(LocalDateTime loggedAt) {
+this.loggedAt = loggedAt;
+}
+
+public Double getEstimatedEmission() {
+return estimatedEmission;
+}
+
+public void setEstimatedEmission(Double estimatedEmission) {
+this.estimatedEmission = estimatedEmission;
+}
 }

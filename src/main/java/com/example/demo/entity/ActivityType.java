@@ -1,14 +1,11 @@
 package com.example.demo.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "activity_types")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class ActivityType {
-
 @Id
 @GeneratedValue(strategy = GenerationType.IDENTITY)
 private Long id;
@@ -16,9 +13,8 @@ private Long id;
 @Column(nullable = false)
 private String typeName;
 
-@ManyToOne(fetch = FetchType.LAZY)
+@ManyToOne(fetch = FetchType.EAGER)
 @JoinColumn(name = "category_id", nullable = false)
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 private ActivityCategory category;
 
 @Column(nullable = false)
@@ -27,8 +23,7 @@ private String unit;
 @Column(nullable = false)
 private LocalDateTime createdAt;
 
-public ActivityType() {
-}
+public ActivityType() {}
 
 public ActivityType(Long id, String typeName, ActivityCategory category, String unit, LocalDateTime createdAt) {
 this.id = id;
@@ -39,19 +34,49 @@ this.createdAt = createdAt;
 }
 
 @PrePersist
-protected void onCreate() {
+public void prePersist() {
+if (createdAt == null) {
 createdAt = LocalDateTime.now();
 }
+}
 
-// getters and setters
-public Long getId() { return id; }
-public void setId(Long id) { this.id = id; }
-public String getTypeName() { return typeName; }
-public void setTypeName(String typeName) { this.typeName = typeName; }
-public ActivityCategory getCategory() { return category; }
-public void setCategory(ActivityCategory category) { this.category = category; }
-public String getUnit() { return unit; }
-public void setUnit(String unit) { this.unit = unit; }
-public LocalDateTime getCreatedAt() { return createdAt; }
-public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+public Long getId() {
+return id;
+}
+
+public void setId(Long id) {
+this.id = id;
+}
+
+public String getTypeName() {
+return typeName;
+}
+
+public void setTypeName(String typeName) {
+this.typeName = typeName;
+}
+
+public ActivityCategory getCategory() {
+return category;
+}
+
+public void setCategory(ActivityCategory category) {
+this.category = category;
+}
+
+public String getUnit() {
+return unit;
+}
+
+public void setUnit(String unit) {
+this.unit = unit;
+}
+
+public LocalDateTime getCreatedAt() {
+return createdAt;
+}
+
+public void setCreatedAt(LocalDateTime createdAt) {
+this.createdAt = createdAt;
+}
 }

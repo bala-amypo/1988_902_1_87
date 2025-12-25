@@ -6,12 +6,11 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "emission_factors")
 public class EmissionFactor {
-
 @Id
 @GeneratedValue(strategy = GenerationType.IDENTITY)
 private Long id;
 
-@ManyToOne(fetch = FetchType.LAZY)
+@ManyToOne(fetch = FetchType.EAGER)
 @JoinColumn(name = "activity_type_id", nullable = false)
 private ActivityType activityType;
 
@@ -24,8 +23,7 @@ private String unit;
 @Column(nullable = false)
 private LocalDateTime createdAt;
 
-public EmissionFactor() {
-}
+public EmissionFactor() {}
 
 public EmissionFactor(Long id, ActivityType activityType, Double factorValue, String unit, LocalDateTime createdAt) {
 this.id = id;
@@ -36,19 +34,49 @@ this.createdAt = createdAt;
 }
 
 @PrePersist
-protected void onCreate() {
+public void prePersist() {
+if (createdAt == null) {
 createdAt = LocalDateTime.now();
 }
+}
 
-// getters and setters
-public Long getId() { return id; }
-public void setId(Long id) { this.id = id; }
-public ActivityType getActivityType() { return activityType; }
-public void setActivityType(ActivityType activityType) { this.activityType = activityType; }
-public Double getFactorValue() { return factorValue; }
-public void setFactorValue(Double factorValue) { this.factorValue = factorValue; }
-public String getUnit() { return unit; }
-public void setUnit(String unit) { this.unit = unit; }
-public LocalDateTime getCreatedAt() { return createdAt; }
-public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+public Long getId() {
+return id;
+}
+
+public void setId(Long id) {
+this.id = id;
+}
+
+public ActivityType getActivityType() {
+return activityType;
+}
+
+public void setActivityType(ActivityType activityType) {
+this.activityType = activityType;
+}
+
+public Double getFactorValue() {
+return factorValue;
+}
+
+public void setFactorValue(Double factorValue) {
+this.factorValue = factorValue;
+}
+
+public String getUnit() {
+return unit;
+}
+
+public void setUnit(String unit) {
+this.unit = unit;
+}
+
+public LocalDateTime getCreatedAt() {
+return createdAt;
+}
+
+public void setCreatedAt(LocalDateTime createdAt) {
+this.createdAt = createdAt;
+}
 }
