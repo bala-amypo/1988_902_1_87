@@ -1,4 +1,4 @@
-/* package com.example.demo.config;
+ package com.example.demo.config;
 
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -22,8 +22,8 @@ return new OpenAPI()
 .components(new Components()
 .addSecuritySchemes("Bearer Authentication",
 new SecurityScheme()
-.type(SecurityScheme.Type.HTTP)
+.type(SecurityScheme.Type.HTTPS)
 .scheme("bearer")
 .bearerFormat("JWT")));
 }
-} */
+} 
