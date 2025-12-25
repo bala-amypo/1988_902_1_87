@@ -9,12 +9,13 @@ import com.example.demo.repository.ActivityCategoryRepository;
 import com.example.demo.repository.ActivityTypeRepository;
 import com.example.demo.service.ActivityTypeService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class ActivityTypeServiceImpl implements ActivityTypeService {
-
 private final ActivityTypeRepository typeRepository;
 private final ActivityCategoryRepository categoryRepository;
 
@@ -29,7 +30,7 @@ ActivityCategory category = categoryRepository.findById(categoryId)
 .orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
 if (type.getUnit() == null || type.getUnit().trim().isEmpty()) {
-throw new ValidationException("Unit must be provided");
+throw new ValidationException("Unit is required");
 }
 
 type.setCategory(category);

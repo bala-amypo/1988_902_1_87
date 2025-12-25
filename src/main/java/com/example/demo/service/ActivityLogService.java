@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.ActivityLog;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -10,3 +11,6 @@ List<ActivityLog> getLogsByUser(Long userId);
 List<ActivityLog> getLogsByUserAndDate(Long userId, LocalDate start, LocalDate end);
 ActivityLog getLog(Long id);
 }
+
+
+

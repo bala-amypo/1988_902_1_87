@@ -14,13 +14,14 @@ import com.example.demo.repository.EmissionFactorRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.ActivityLogService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Service
+@Transactional
 public class ActivityLogServiceImpl implements ActivityLogService {
-
 private final ActivityLogRepository logRepository;
 private final UserRepository userRepository;
 private final ActivityTypeRepository typeRepository;
@@ -47,7 +48,7 @@ throw new ValidationException("Activity date cannot be in the future");
 }
 
 if (log.getQuantity() <= 0) {
-throw new ValidationException("Quantity must be greater than zero");
+throw new ValidationException("Quantity must be greater than 0");
 }
 
 EmissionFactor factor = factorRepository.findByActivityType_Id(typeId)

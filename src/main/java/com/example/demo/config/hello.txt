@@ -145,36 +145,11 @@ ActivityTypeRepository.java
 
 
 EmissionFactorRepository.java
-package com.example.demo.repository;
-
-import com.example.demo.entity.EmissionFactor;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
-
-@Repository
-public interface EmissionFactorRepository extends JpaRepository<EmissionFactor, Long> {
-Optional<EmissionFactor> findByActivityType_Id(Long activityTypeId);
-}
 
 
 
 
 UserRepository.java
-package com.example.demo.repository;
-
-import com.example.demo.entity.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
-
-@Repository
-public interface UserRepository extends JpaRepository<User, Long> {
-boolean existsByEmail(String email);
-Optional<User> findByEmail(String email);
-}
 
 
 
@@ -182,98 +157,12 @@ Optional<User> findByEmail(String email);
 
 -------security-------
 CustomUserDetailsService.java
-package com.example.demo.security;
-
-import com.example.demo.entity.User;
-import com.example.demo.repository.UserRepository;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Service;
-
-import java.util.Collections;
-
-@Service
-public class CustomUserDetailsService implements UserDetailsService {
-private final UserRepository userRepository;
-
-public CustomUserDetailsService(UserRepository userRepository) {
-this.userRepository = userRepository;
-}
-
-@Override
-public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-User user = userRepository.findByEmail(email)
-.orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-
-return org.springframework.security.core.userdetails.User.builder()
-.username(user.getEmail())
-.password(user.getPassword())
-.authorities(Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole())))
-.build();
-}
-}
-
 
 
 
 
 
 JwtAuthenticationFilter.java
-package com.example.demo.security;
-
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
-
-import java.io.IOException;
-import java.util.Collections;
-
-@Component
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
-private final JwtUtil jwtUtil;
-
-public JwtAuthenticationFilter(JwtUtil jwtUtil) {
-this.jwtUtil = jwtUtil;
-}
-
-@Override
-protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-FilterChain filterChain) throws ServletException, IOException {
-String authHeader = request.getHeader("Authorization");
-
-if (authHeader != null && authHeader.startsWith("Bearer ")) {
-String token = authHeader.substring(7);
-try {
-String username = jwtUtil.extractUsername(token);
-String role = jwtUtil.extractRole(token);
-
-if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-if (jwtUtil.isTokenValid(token, username)) {
-UsernamePasswordAuthenticationToken authToken =
-new UsernamePasswordAuthenticationToken(
-username,
-null,
-Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role))
-);
-SecurityContextHolder.getContext().setAuthentication(authToken);
-}
-}
-} catch (Exception e) {
-// Invalid token, continue without authentication
-}
-}
-
-filterChain.doFilter(request, response);
-}
-}
 
 
 
@@ -282,125 +171,6 @@ filterChain.doFilter(request, response);
 
 
 JwtUtil.java
-package com.example.demo.security;
-
-import com.example.demo.entity.User;
-import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
-
-import javax.crypto.SecretKey;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-
-@Component
-public class JwtUtil {
-
-@Value("${jwt.secret:mySecretKey}")
-private String secret;
-
-@Value("${jwt.expiration:86400000}")
-private Long expiration;
-
-public JwtUtil() {
-// Default values for testing
-if (this.secret == null) {
-this.secret = "mySecretKeyThatIsLongEnoughForJWTHMACAlgorithmRequirements";
-}
-if (this.expiration == null) {
-this.expiration = 86400000L;
-}
-}
-
-private SecretKey getSigningKey() {
-return Keys.hmacShaKeyFor(secret.getBytes());
-}
-
-public String generateToken(Map<String, Object> claims, String subject) {
-return Jwts.builder()
-.setClaims(claims)
-.setSubject(subject)
-.setIssuedAt(new Date())
-.setExpiration(new Date(System.currentTimeMillis() + expiration))
-.signWith(getSigningKey())
-.compact();
-}
-
-public String generateTokenForUser(User user) {
-Map<String, Object> claims = new HashMap<>();
-claims.put("userId", user.getId());
-claims.put("email", user.getEmail());
-claims.put("role", user.getRole());
-return generateToken(claims, user.getEmail());
-}
-
-public String extractUsername(String token) {
-return extractClaim(token, Claims::getSubject);
-}
-
-public String extractRole(String token) {
-return extractClaim(token, claims -> claims.get("role", String.class));
-}
-
-public Long extractUserId(String token) {
-return extractClaim(token, claims -> {
-Object userId = claims.get("userId");
-if (userId instanceof Integer) {
-return ((Integer) userId).longValue();
-}
-return (Long) userId;
-});
-}
-
-public <T> T extractClaim(String token, java.util.function.Function<Claims, T> claimsResolver) {
-final Claims claims = extractAllClaims(token);
-return claimsResolver.apply(claims);
-}
-
-private Claims extractAllClaims(String token) {
-return Jwts.parserBuilder()
-.setSigningKey(getSigningKey())
-.build()
-.parseClaimsJws(token)
-.getBody();
-}
-
-public boolean isTokenValid(String token, String username) {
-final String extractedUsername = extractUsername(token);
-return (extractedUsername.equals(username) && !isTokenExpired(token));
-}
-
-private boolean isTokenExpired(String token) {
-return extractExpiration(token).before(new Date());
-}
-
-private Date extractExpiration(String token) {
-return extractClaim(token, Claims::getExpiration);
-}
-
-public JwtWrapper parseToken(String token) {
-final Claims claims = extractAllClaims(token);
-return new JwtWrapper(claims);
-}
-
-public static class JwtWrapper {
-private final Claims payload;
-
-public JwtWrapper(Claims payload) {
-this.payload = payload;
-}
-
-public Claims getPayload() {
-return payload;
-}
-}
-
-public Claims extractAllClaimsForTest(String token) {
-return extractAllClaims(token);
-}
-}
 
 
 
@@ -410,312 +180,30 @@ return extractAllClaims(token);
 
 ---------service---------
 ActivityCategoryService.java
-package com.example.demo.service;
-
-import com.example.demo.entity.ActivityCategory;
-
-import java.util.List;
-
-public interface ActivityCategoryService {
-ActivityCategory createCategory(ActivityCategory category);
-ActivityCategory getCategory(Long id);
-List<ActivityCategory> getAllCategories();
-}
 
 
 
 ActivityLogService.java
-package com.example.demo.service;
-
-import com.example.demo.entity.ActivityLog;
-
-import java.time.LocalDate;
-import java.util.List;
-
-public interface ActivityLogService {
-ActivityLog logActivity(Long userId, Long typeId, ActivityLog log);
-List<ActivityLog> getLogsByUser(Long userId);
-List<ActivityLog> getLogsByUserAndDate(Long userId, LocalDate start, LocalDate end);
-ActivityLog getLog(Long id);
-}
-
-
-ActivityTypeService.java
-package com.example.demo.service;
-
-import com.example.demo.entity.ActivityType;
-
-import java.util.List;
-
-public interface ActivityTypeService {
-ActivityType createType(Long categoryId, ActivityType type);
-ActivityType getType(Long id);
-List<ActivityType> getTypesByCategory(Long categoryId);
-}
 
 
 
 EmissionFactorService.java
-package com.example.demo.service;
-
-import com.example.demo.entity.EmissionFactor;
-
-import java.util.List;
-
-public interface EmissionFactorService {
-EmissionFactor createFactor(Long activityTypeId, EmissionFactor factor);
-EmissionFactor getFactor(Long id);
-EmissionFactor getFactorByType(Long typeId);
-List<EmissionFactor> getAllFactors();
-}
-
 
 UserService.java
-package com.example.demo.service;
-
-import com.example.demo.entity.User;
-
-import java.util.List;
-
-public interface UserService {
-User registerUser(User user);
-User getUser(Long id);
-List<User> getAllUsers();
-User getByEmail(String email);
-}
-
-
-
-
-package com.example.demo.service.impl;
-
-import com.example.demo.entity.ActivityCategory;
-import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.exception.ValidationException;
-import com.example.demo.repository.ActivityCategoryRepository;
-import com.example.demo.service.ActivityCategoryService;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-
-@Service
-public class ActivityCategoryServiceImpl implements ActivityCategoryService {
-private final ActivityCategoryRepository categoryRepository;
-
-public ActivityCategoryServiceImpl(ActivityCategoryRepository categoryRepository) {
-this.categoryRepository = categoryRepository;
-}
-
-@Override
-public ActivityCategory createCategory(ActivityCategory category) {
-if (categoryRepository.existsByCategoryName(category.getCategoryName())) {
-throw new ValidationException("Category name must be unique");
-}
-return categoryRepository.save(category);
-}
-
-@Override
-public ActivityCategory getCategory(Long id) {
-return categoryRepository.findById(id)
-.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
-}
-
-@Override
-public List<ActivityCategory> getAllCategories() {
-return categoryRepository.findAll();
-}
-}
-
-
-package com.example.demo.service.impl;
-
-import com.example.demo.entity.ActivityLog;
-import com.example.demo.entity.ActivityType;
-import com.example.demo.entity.EmissionFactor;
-import com.example.demo.entity.User;
-import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.exception.ValidationException;
-import com.example.demo.repository.ActivityLogRepository;
-import com.example.demo.repository.ActivityTypeRepository;
-import com.example.demo.repository.EmissionFactorRepository;
-import com.example.demo.repository.UserRepository;
-import com.example.demo.service.ActivityLogService;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDate;
-import java.util.List;
-
-@Service
-@Transactional
-public class ActivityLogServiceImpl implements ActivityLogService {
-private final ActivityLogRepository logRepository;
-private final UserRepository userRepository;
-private final ActivityTypeRepository typeRepository;
-private final EmissionFactorRepository factorRepository;
-
-public ActivityLogServiceImpl(ActivityLogRepository logRepository, UserRepository userRepository,
-ActivityTypeRepository typeRepository, EmissionFactorRepository factorRepository) {
-this.logRepository = logRepository;
-this.userRepository = userRepository;
-this.typeRepository = typeRepository;
-this.factorRepository = factorRepository;
-}
-
-@Override
-public ActivityLog logActivity(Long userId, Long typeId, ActivityLog log) {
-User user = userRepository.findById(userId)
-.orElseThrow(() -> new ResourceNotFoundException("User not found"));
-
-ActivityType activityType = typeRepository.findById(typeId)
-.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
-
-if (log.getActivityDate().isAfter(LocalDate.now())) {
-throw new ValidationException("Activity date cannot be in the future");
-}
-
-if (log.getQuantity() <= 0) {
-throw new ValidationException("Quantity must be greater than 0");
-}
-
-EmissionFactor factor = factorRepository.findByActivityType_Id(typeId)
-.orElseThrow(() -> new ValidationException("No emission factor configured"));
-
-log.setUser(user);
-log.setActivityType(activityType);
-log.setEstimatedEmission(log.getQuantity() * factor.getFactorValue());
-
-return logRepository.save(log);
-}
-
-@Override
-public List<ActivityLog> getLogsByUser(Long userId) {
-return logRepository.findByUser_Id(userId);
-}
-
-@Override
-public List<ActivityLog> getLogsByUserAndDate(Long userId, LocalDate start, LocalDate end) {
-return logRepository.findByUser_IdAndActivityDateBetween(userId, start, end);
-}
-
-@Override
-public ActivityLog getLog(Long id) {
-return logRepository.findById(id)
-.orElseThrow(() -> new ResourceNotFoundException("Activity log not found"));
-}
-}
-
-
-
-
-package com.example.demo.service.impl;
-
-import com.example.demo.entity.ActivityCategory;
-import com.example.demo.entity.ActivityType;
-import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.exception.ValidationException;
-import com.example.demo.repository.ActivityCategoryRepository;
-import com.example.demo.repository.ActivityTypeRepository;
-import com.example.demo.service.ActivityTypeService;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-
-@Service
-@Transactional
-public class ActivityTypeServiceImpl implements ActivityTypeService {
-private final ActivityTypeRepository typeRepository;
-private final ActivityCategoryRepository categoryRepository;
-
-public ActivityTypeServiceImpl(ActivityTypeRepository typeRepository, ActivityCategoryRepository categoryRepository) {
-this.typeRepository = typeRepository;
-this.categoryRepository = categoryRepository;
-}
-
-@Override
-public ActivityType createType(Long categoryId, ActivityType type) {
-ActivityCategory category = categoryRepository.findById(categoryId)
-.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
-
-if (type.getUnit() == null || type.getUnit().trim().isEmpty()) {
-throw new ValidationException("Unit is required");
-}
-
-type.setCategory(category);
-return typeRepository.save(type);
-}
-
-@Override
-public ActivityType getType(Long id) {
-return typeRepository.findById(id)
-.orElseThrow(() -> new ResourceNotFoundException("Activity type not found"));
-}
-
-@Override
-public List<ActivityType> getTypesByCategory(Long categoryId) {
-return typeRepository.findByCategory_Id(categoryId);
-}
-}
 
 
 
 
 
 
-package com.example.demo.service.impl;
 
-import com.example.demo.entity.ActivityType;
-import com.example.demo.entity.EmissionFactor;
-import com.example.demo.exception.ResourceNotFoundException;
-import com.example.demo.exception.ValidationException;
-import com.example.demo.repository.ActivityTypeRepository;
-import com.example.demo.repository.EmissionFactorRepository;
-import com.example.demo.service.EmissionFactorService;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
 
-@Service
-public class EmissionFactorServiceImpl implements EmissionFactorService {
-private final EmissionFactorRepository factorRepository;
-private final ActivityTypeRepository typeRepository;
 
-public EmissionFactorServiceImpl(EmissionFactorRepository factorRepository, ActivityTypeRepository typeRepository) {
-this.factorRepository = factorRepository;
-this.typeRepository = typeRepository;
-}
 
-@Override
-public EmissionFactor createFactor(Long activityTypeId, EmissionFactor factor) {
-ActivityType activityType = typeRepository.findById(activityTypeId)
-.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
 
-if (factor.getFactorValue() <= 0) {
-throw new ValidationException("Factor value must be greater than 0");
-}
 
-factor.setActivityType(activityType);
-return factorRepository.save(factor);
-}
 
-@Override
-public EmissionFactor getFactor(Long id) {
-return factorRepository.findById(id)
-.orElseThrow(() -> new ResourceNotFoundException("Emission factor not found"));
-}
-
-@Override
-public EmissionFactor getFactorByType(Long typeId) {
-return factorRepository.findByActivityType_Id(typeId)
-.orElseThrow(() -> new ResourceNotFoundException("Emission factor not found"));
-}
-
-@Override
-public List<EmissionFactor> getAllFactors() {
-return factorRepository.findAll();
-}
-}
 
 
 

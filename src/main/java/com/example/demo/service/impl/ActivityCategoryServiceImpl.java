@@ -11,7 +11,6 @@ import java.util.List;
 
 @Service
 public class ActivityCategoryServiceImpl implements ActivityCategoryService {
-
 private final ActivityCategoryRepository categoryRepository;
 
 public ActivityCategoryServiceImpl(ActivityCategoryRepository categoryRepository) {
