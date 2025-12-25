@@ -1,7 +1,11 @@
+
 package com.example.demo.controller;
 
+import com.example.demo.dto.CategoryRequest;
 import com.example.demo.entity.ActivityCategory;
 import com.example.demo.service.ActivityCategoryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -9,11 +13,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@CrossOrigin
 @RequestMapping("/api/categories")
-@Tag(name = "Activity Categories", description = "Activity category management operations")
+@SecurityRequirement(name = "Bearer Authentication")
+@Tag(name = "Activity Categories", description = "Activity category management endpoints")
 public class ActivityCategoryController {
-
 private final ActivityCategoryService categoryService;
 
 public ActivityCategoryController(ActivityCategoryService categoryService) {
@@ -21,20 +24,23 @@ this.categoryService = categoryService;
 }
 
 @PostMapping
-public ResponseEntity<ActivityCategory> createCategory(@RequestBody ActivityCategory category) {
-ActivityCategory savedCategory = categoryService.createCategory(category);
-return ResponseEntity.ok(savedCategory);
-}
-
-@GetMapping("/{id}")
-public ResponseEntity<ActivityCategory> getCategory(@PathVariable Long id) {
-ActivityCategory category = categoryService.getCategory(id);
-return ResponseEntity.ok(category);
+@Operation(summary = "Create a new activity category")
+public ResponseEntity<ActivityCategory> createCategory(@RequestBody CategoryRequest request) {
+ActivityCategory category = new ActivityCategory();
+category.setCategoryName(request.getName());
+category.setDescription(request.getDescription());
+return ResponseEntity.ok(categoryService.createCategory(category));
 }
 
 @GetMapping
+@Operation(summary = "Get all activity categories")
 public ResponseEntity<List<ActivityCategory>> getAllCategories() {
-List<ActivityCategory> categories = categoryService.getAllCategories();
-return ResponseEntity.ok(categories);
+return ResponseEntity.ok(categoryService.getAllCategories());
+}
+
+@GetMapping("/{id}")
+@Operation(summary = "Get activity category by ID")
+public ResponseEntity<ActivityCategory> getCategoryById(@PathVariable Long id) {
+return ResponseEntity.ok(categoryService.getCategory(id));
 }
 }

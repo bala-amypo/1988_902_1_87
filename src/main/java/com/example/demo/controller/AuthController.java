@@ -5,22 +5,20 @@ import com.example.demo.dto.RegisterRequest;
 import com.example.demo.entity.User;
 import com.example.demo.security.JwtUtil;
 import com.example.demo.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping("/auth")
-@Tag(name = "Authentication", description = "User authentication operations")
+@Tag(name = "Authentication", description = "User authentication endpoints")
 public class AuthController {
-
 private final UserService userService;
 private final AuthenticationManager authenticationManager;
 private final JwtUtil jwtUtil;
@@ -32,19 +30,23 @@ this.jwtUtil = jwtUtil;
 }
 
 @PostMapping("/register")
-public ResponseEntity<User> register(@RequestBody RegisterRequest request) {
+@Operation(summary = "Register a new user")
+public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
 User user = new User();
 user.setFullName(request.getName());
 user.setEmail(request.getEmail());
 user.setPassword(request.getPassword());
+user.setRole(request.getRole());
 
-User savedUser = userService.registerUser(user);
-return ResponseEntity.ok(savedUser);
+userService.registerUser(user);
+
+return ResponseEntity.ok("User registered successfully");
 }
 
 @PostMapping("/login")
+@Operation(summary = "Login user")
 public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest request) {
-Authentication authentication = authenticationManager.authenticate(
+authenticationManager.authenticate(
 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
 );
 
